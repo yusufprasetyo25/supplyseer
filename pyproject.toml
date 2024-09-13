@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "your_package_name"
+name = "supplyseer"
 version = "0.1.0"
 authors = [
   { name="Jako Rostami", email="rostami.jako@gmail.com" },
@@ -18,5 +18,8 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/your_package_name"
-"Bug Tracker" = "https://github.com/yourusername/your_package_name/issues"
+"Homepage" = "https://github.com/jakorostami/supplyseer"
+"Bug Tracker" = "https://github.com/jakorostami/supplyseer/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/supplyseer"]
