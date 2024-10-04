@@ -1,5 +1,5 @@
 
-name: Build Docker Image
+name: Run unittests
 
 on:
   workflow_dispatch:
