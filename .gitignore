@@ -41,6 +41,7 @@ coverage.xml
 .hypothesis/
 
 # Environments
+.supplyseer
 .env
 .venv
 env/
