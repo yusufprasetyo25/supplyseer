@@ -1,8 +1,10 @@
-numpy==2.0.0
+numpy==1.26.4
 pandas==2.2.3
 polars==1.8.2
 polars-lts-cpu==1.9.0
+pyarrow >= 7.0.0
 pydantic==2.9.2
 sktime==0.33.0
 ordpy==1.1.4
 pytest==8.3.0
+pmdarima==2.0.4
