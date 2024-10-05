@@ -4,21 +4,21 @@ import polars as pl
 from typing import Union, List, Optional
 
 
-def pca_embeddings(input_data: Union[np.ndarray, pd.Series, pl.Series],
-                   n_embeddings: Optional[int] = 3,
-                   auto_standardize: Optional[str] = True) -> np.ndarray:
+# def pca_embeddings(input_data: Union[np.ndarray, pd.Series, pl.Series],
+#                    n_embeddings: Optional[int] = 3,
+#                    auto_standardize: Optional[str] = True) -> np.ndarray:
     
-    """
-    Classical PCA calculation using NumPy library. 
+#     """
+#     Classical PCA calculation using NumPy library. 
 
-    Args:
-        input_data: the data you want to use for PCA
-        n_embeddings: the number of components in your PCA model
-        auto_standardize: this function handles the standardization of your data
+#     Args:
+#         input_data: the data you want to use for PCA
+#         n_embeddings: the number of components in your PCA model
+#         auto_standardize: this function handles the standardization of your data
     
-    Returns:
-        np.ndarray: a numpy array of shape (rows, n_embeddings)
-    """
+#     Returns:
+#         np.ndarray: a numpy array of shape (rows, n_embeddings)
+#     """
 
 
 
