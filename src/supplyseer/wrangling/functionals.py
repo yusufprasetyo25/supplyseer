@@ -2,6 +2,25 @@ import pandas as pd
 import polars as pl
 
 def fill_missing_dates(input_data, time_column, period_fill, group_by_columns, keep_order):
+    """
+    Function impute missing dates in a time series data with a forward fill strategy.
+    Will automatically fill the group by columns with the same value as the previous row.
+    Other columns will not be handled by this function. 
+
+    Runs on Polars backend and is an extension of polars.DataFrame.upsample() method.
+    Visit for more: https://docs.pola.rs/api/python/dev/reference/dataframe/api/polars.DataFrame.upsample.html
+
+    Args:
+        input_data: a pandas or polars dataframe
+        time_column: the column with the time series data
+        period_fill: the frequency to fill the missing dates
+        group_by_columns: the columns to group by
+        keep_order: whether to maintain the order of the data
+
+    Returns:
+        pd.DataFrame or pl.DataFrame: a dataframe with the missing dates filled
+    """
+
     # Check the type first, if input is a pandas dataframe, convert it to polars and a dummy helper
     dummy_pandas, dummy_polars = False, False
 
