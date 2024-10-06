@@ -1,5 +1,6 @@
 import numpy as np
 from src.supplyseer.eoq import eoq
+from typing import List, Union, Optional, Dict
 
 
 def normal_pdf(x, mean, std):
@@ -78,10 +79,11 @@ def eoq_credible_interval(posterior_d, posterior_a, posterior_h, d_range, a_rang
     return eoq_credible_interval
 
 
-def bayesian_eoq_full(d, a, h,
-                 min_d, max_d, min_a, max_a, min_h, max_h,
-                 initial_d, initial_a, initial_h,
-                 n_param_values):
+def bayesian_eoq_full(d: Union[int, float], a: Union[int, float], h: Union[int, float],
+                 min_d: Union[int, float], max_d: Union[int, float], min_a: Union[int, float], 
+                 max_a: Union[int, float], min_h: Union[int, float], max_h: Union[int, float],
+                 initial_d: Union[int, float], initial_a: Union[int, float], initial_h: Union[int, float],
+                 n_param_values: int, parameter_space: Optional[str] = 'full', n_simulations: Optional[int] = 1):
     
     """
     This function computes the EOQ distribution and the Bayesian credible interval of the EOQ using a Bayesian approach.
@@ -125,6 +127,15 @@ def bayesian_eoq_full(d, a, h,
                         max_h)
     
     eoq_distribution = [eoq(d_range[i], a_range[j], h_range[k]) for i in range(len(d_range)) for j in range(len(a_range)) for k in range(len(h_range))]
+
+    if parameter_space == 'full':
+        eoq_distribution = [eoq(d_range[i], a_range[j], h_range[k]) for i in range(len(d_range)) for j in range(len(a_range)) for k in range(len(h_range))]
+    elif parameter_space == 'montecarlo':
+        eoq_montecarlo = eoq(d_range, a_range, h_range)
+        eoq_distribution = np.random.choice(eoq_montecarlo, size=n_simulations, replace=True)
+    else:
+        eoq_distribution = []
+    
 
     eoq_credible = eoq_credible_interval(posterior_d, posterior_a, posterior_h, d_range, a_range, h_range)
 
