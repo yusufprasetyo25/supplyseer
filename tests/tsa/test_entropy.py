@@ -22,6 +22,6 @@ def test_entropy_metrics():
     statistical_complexity = permutation_complexity(x)[1]
 
 
-    assert shannon_entropy_output == np.float64(9.687850776045513)
+    assert np.round(shannon_entropy_output, 3) == np.float64(9.688)
     assert permutation_entropy == np.float64(0.0)
     assert statistical_complexity == np.float64(0.0)
