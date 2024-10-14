@@ -1,6 +1,8 @@
 import numpy as np
 import pyAgrum as gum
 import pandas as pd
+import polars as pl
+from typing import List
 
 class ProbabilisticNet(gum.BayesNet):
     """
@@ -15,7 +17,7 @@ class ProbabilisticNet(gum.BayesNet):
     
     def inference_hard_evidence(self,
                             model_input: gum.pyAgrum.BayesNet,
-                            input_data: pd.DataFrame, 
+                            input_data: List[pd.DataFrame, pl.DataFrame], 
                             input_features: list,
                             target: str) -> np.ndarray:
         
@@ -32,7 +34,13 @@ class ProbabilisticNet(gum.BayesNet):
             output: a numpy array of the posterior of the target feature
 
         """
-        inference_df = input_data[input_features].copy()
+        if isinstance(input_data, pd.DataFrame):
+            inference_df = input_data[input_features].copy()
+        elif isinstance(input_data, pl.DataFrame):
+            inference_df = input_data.to_pandas()[input_features].copy()
+        else:
+            raise TypeError(f"Must provide a pandas or polars dataframe. You provided {type(input_data)}")
+
 
         ie = gum.LazyPropagation(model_input)
         
