@@ -2,7 +2,7 @@ import numpy as np
 import pyAgrum as gum
 import pandas as pd
 import polars as pl
-from typing import List
+from typing import Union
 
 class ProbabilisticNet(gum.BayesNet):
     """
@@ -17,7 +17,7 @@ class ProbabilisticNet(gum.BayesNet):
     
     def inference_hard_evidence(self,
                             model_input: gum.pyAgrum.BayesNet,
-                            input_data: List[pd.DataFrame, pl.DataFrame], 
+                            input_data: Union[pd.DataFrame, pl.DataFrame], 
                             input_features: list,
                             target: str) -> np.ndarray:
         
