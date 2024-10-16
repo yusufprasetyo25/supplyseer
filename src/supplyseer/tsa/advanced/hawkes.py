@@ -34,6 +34,8 @@ class MultivariateHawkesProcess:
     def __init__(self, baseline: np.ndarray, alpha: np.ndarray, beta: np.ndarray):
         """
         Initialize the Multivariate Hawkes Process with baseline intensities, influence matrix, and decay rates.
+
+        Source: https://www.math.fsu.edu/~ychen/research/multiHawkes.pdf
         
         :param baseline: Baseline intensity for each dimension (shape: [D,])
         :param alpha: Influence matrix for event types (shape: [D, D])
