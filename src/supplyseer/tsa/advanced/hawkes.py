@@ -59,7 +59,7 @@ class MultivariateHawkesProcess:
         """
         t = 0
         while t < max_time:
-            # Calculate intensity for each dimension
+            # Calculate intensity for each dimension (updated intensity after time step)
             intensities = self._calculate_intensities(t)
             total_intensity = np.sum(intensities)
 
@@ -68,14 +68,6 @@ class MultivariateHawkesProcess:
                 break
             dt = np.random.exponential(1.0 / total_intensity)
             t += dt
-            # Calculate intensity for each dimension
-            intensities = self._calculate_intensities(t)
-            total_intensity = np.sum(intensities)
-
-            # Sample next event time
-            if total_intensity == 0:
-                break
-
 
             # Break if beyond max_time
             if t >= max_time:
@@ -97,9 +89,28 @@ class MultivariateHawkesProcess:
 
             # Record the event
             self.history[dimension].append(t)
+            # Determine event type based on dimension and inventory levels
+            event_type = None
+            if dimension == 0:
+                # Demand spike reduces inventory
+                magnitude = np.random.uniform(0.1, 1.0)
+                self.inventory_levels[dimension] = max(0.0, self.inventory_levels[dimension] - magnitude)
+                if self.inventory_levels[dimension] == 0.0:
+                    event_type = EventType.STOCKOUT
+                else:
+                    event_type = EventType.DEMAND_SPIKE
+            else:
+                # Inventory change restocks inventory
+                magnitude = np.random.uniform(0.1, 1.0)
+                prev_inventory_level = self.inventory_levels[dimension]
+                self.inventory_levels[dimension] += magnitude
+                if prev_inventory_level < 5.0 and self.inventory_levels[dimension] >= 5.0:
+                    event_type = EventType.RESTOCK
+                else:
+                    event_type = EventType.INVENTORY_CHANGE
             event = SupplyChainEvent(
                 time=t,
-                event_type=EventType.DEMAND_SPIKE if dimension == 0 else EventType.INVENTORY_CHANGE,
+                event_type=event_type,
                 location_id=dimension,
                 magnitude=magnitude,
                 inventory_level=self.inventory_levels[dimension],  # Correctly assign the inventory level
