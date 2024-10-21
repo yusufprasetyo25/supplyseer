@@ -9,7 +9,7 @@ def test_functionals():
 
     x = np.random.normal(0, 1, 10000).reshape(-1,1)
     # x = np.array([np.nan]*10000).reshape(-1,1) # Uncomment this line to test for NaNs
-    takens_rows, takens_columns = x.shape[0] - 3, 3
+    takens_rows, takens_columns = x.shape[0] - 2, 3
 
     data = {
     "date": ["2021-01-01", "2021-01-03", "2021-01-05", "2021-01-07", "2021-01-09", "2021-01-11"],
