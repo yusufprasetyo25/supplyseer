@@ -1,6 +1,11 @@
 import pandas as pd
 import polars as pl
 import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.utils.validation import check_is_fitted, column_or_1d
+from src.supplyseer.wrangling.__utils import (
+    validate_params, takens_embedding_optimal_parameters, time_delay_embedding
+)
 
 def fill_missing_dates(input_data, time_column, period_fill, group_by_columns, keep_order):
     """
@@ -64,28 +69,233 @@ def fill_missing_dates(input_data, time_column, period_fill, group_by_columns, k
 # TODO: Add more functionality with higher delays and higher dimensions
 # Do not change the list comprehension as it is the most efficient way to do this without adding complexity
 # Takes about 5 seconds to run on 1 million data points on a M1 Macbook Pro
-def univariate_takens(input_data):
+
+class UnivariateTakens(BaseEstimator, TransformerMixin):
     """
-    Takens embedding for univariate time series data, currently only takes delay=1 and dimension=3 for 
-    1D data. Future iterations will include more flexibility.
+    SingleTakensEmbedding transforms a univariate time series into a multi-dimensional
+    phase space using Takens' Embedding Theorem.
 
-    Based on the simple calculation of 
-    x(t) - x(t-1), 
-    x(t-1) - x(t-2), 
-    x(t-2) - x(t-3) for a 1D time series data.
+    Parameters
+    ----------
+    parameters_type : {'fixed', 'search'}, default='search'
+        Determines whether to use fixed embedding parameters or search for optimal values.
+        - 'fixed': Use the provided `time_delay` and `embedding_dimension`.
+        - 'search': Automatically find optimal `time_delay` and `embedding_dimension`.
 
-    Args:
-        input_data (np.array): 1D time series data
+    time_delay : int, default=1
+        Time delay between consecutive points in the embedding.
+        Used directly if `parameters_type='fixed'`.
+        Acts as the maximum lag to consider if `parameters_type='search'`.
 
-    Returns:
-        np.array: 2D array of Takens embedding data
+    embedding_dimension : int, default=5
+        Number of delayed coordinates (embedding dimension).
+        Used directly if `parameters_type='fixed'`.
+        Acts as the maximum dimension to consider if `parameters_type='search'`.
+
+    stride : int, default=1
+        Stride between consecutive embedded vectors.
+
+    n_jobs : int or None, default=1
+        Number of parallel jobs to run for parameter searching.
+        `-1` means using all processors.
+
+    Attributes
+    ----------
+    time_delay_ : int
+        Optimal time delay after fitting (only if `parameters_type='search'`).
+
+    embedding_dimension_ : int
+        Optimal embedding dimension after fitting (only if `parameters_type='search'`).
     """
 
-    if input_data.shape[1] != 1:
-        raise ValueError("Input data must be 1D. Please reshape data to 1D. Hint: input_data.reshape(-1, 1).")
+    def __init__(
+        self,
+        parameters_type='fixed',
+        time_delay=1,
+        embedding_dimension=5,
+        stride=1,
+        n_jobs=1
+    ):
+        self.parameters_type = parameters_type
+        self.time_delay = time_delay
+        self.embedding_dimension = embedding_dimension
+        self.stride = stride
+        self.n_jobs = n_jobs
 
-    x = [input_data[i] - input_data[i-1] for i in range(1, len(input_data)-2)]
-    y = [input_data[i] - input_data[i-1] for i in range(1+1, len(input_data)-1)]
-    z = [input_data[i] - input_data[i-1] for i in range(1+2, len(input_data))]
+    def fit(self, X, y=None):
+        """
+        Fit the transformer by optionally searching for optimal time_delay and embedding_dimension.
 
-    return np.concatenate([x, y, z], axis=1)
+        Parameters
+        ----------
+        X : array-like of shape (n_samples,)
+            Univariate time series data.
+
+        y : Ignored
+            Not used, present here for API consistency by convention.
+
+        Returns
+        -------
+        self : object
+            Fitted transformer.
+        """
+        # Validate input
+        X = column_or_1d(X, warn=True)
+        if X.ndim != 1:
+            raise ValueError("Input time series X must be one-dimensional.")
+
+        if self.parameters_type not in ['fixed', 'search']:
+            raise ValueError("`parameters_type` must be either 'fixed' or 'search'.")
+
+        if self.parameters_type == 'search':
+            # Define validation criteria for hyperparameters
+            validation_references = {
+                'time_delay': {'type': int, 'other': lambda x: x > 0},
+                'dimension': {'type': int, 'other': lambda x: x > 1},
+                'stride': {'type': int, 'other': lambda x: x > 0},
+                'n_jobs': {'type': (int, type(None))}
+            }
+
+            # Validate hyperparameters
+            hyperparameters = {
+                'time_delay': self.time_delay,
+                'dimension': self.embedding_dimension,
+                'stride': self.stride,
+                'n_jobs': self.n_jobs
+            }
+            validate_params(hyperparameters, validation_references)
+
+            # Search for optimal parameters
+            optimal_time_delay, optimal_embedding_dimension = takens_embedding_optimal_parameters(
+                X=X,
+                max_time_delay=self.time_delay,
+                max_dimension=self.embedding_dimension,
+                stride=self.stride,
+                n_jobs=self.n_jobs,
+                validate=True
+            )
+            self.time_delay_ = optimal_time_delay
+            self.embedding_dimension_ = optimal_embedding_dimension
+        else:
+            # Use fixed parameters
+            # Validate fixed parameters
+            fixed_validation_references = {
+                'time_delay': {'type': int, 'other': lambda x: x > 0},
+                'embedding_dimension': {'type': int, 'other': lambda x: x > 1},
+                'stride': {'type': int, 'other': lambda x: x > 0}
+            }
+
+            fixed_hyperparameters = {
+                'time_delay': self.time_delay,
+                'embedding_dimension': self.embedding_dimension,
+                'stride': self.stride
+            }
+            validate_params(fixed_hyperparameters, fixed_validation_references)
+
+            self.time_delay_ = self.time_delay
+            self.embedding_dimension_ = self.embedding_dimension
+
+        return self
+
+    def transform(self, X, y=None):
+        """
+        Transform the input time series into its embedded phase space.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples,)
+            Univariate time series data.
+
+        y : Ignored
+            Not used, present here for API consistency by convention.
+
+        Returns
+        -------
+        embedded_X : np.ndarray of shape (n_vectors, embedding_dimension_)
+            Embedded phase space representation of the input time series.
+        """
+        # Check if fit has been called
+        check_is_fitted(self, ['time_delay_', 'embedding_dimension_'])
+
+        # Validate input
+        X = column_or_1d(X, warn=True)
+        if X.ndim != 1:
+            raise ValueError("Input time series X must be one-dimensional.")
+
+        # Perform time-delay embedding
+        embedded_X = time_delay_embedding(
+            time_series=X,
+            time_delay=self.time_delay_,
+            embedding_dimension=self.embedding_dimension_,
+            stride=self.stride,
+            flatten=False,
+            ensure_last_value=True
+        )
+
+        return embedded_X
+
+    def fit_transform(self, X, y=None):
+        """
+        Fit the transformer and transform the input time series.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples,)
+            Univariate time series data.
+
+        y : Ignored
+            Not used, present here for API consistency by convention.
+
+        Returns
+        -------
+        embedded_X : np.ndarray of shape (n_vectors, embedding_dimension_)
+            Embedded phase space representation of the input time series.
+        """
+        return self.fit(X, y).transform(X, y)
+
+    def resample(self, y, X=None):
+        """
+        Resample the target variable to align with the embedded vectors.
+
+        Parameters
+        ----------
+        y : array-like of shape (n_samples,)
+            Target variable corresponding to the time series.
+
+        X : Ignored
+            Not used, present here for API consistency by convention.
+
+        Returns
+        -------
+        resampled_y : np.ndarray of shape (n_vectors,)
+            Resampled target variable aligned with the embedded vectors.
+        """
+        # Check if fit has been called
+        check_is_fitted(self, ['time_delay_', 'embedding_dimension_'])
+
+        # Validate input
+        y = column_or_1d(y, warn=True)
+        if y.ndim != 1:
+            raise ValueError("Target variable y must be one-dimensional.")
+
+        required_length = self.time_delay_ * (self.embedding_dimension_ - 1) + 1
+        if len(y) < required_length:
+            raise ValueError(
+                f"Target variable y is too short for embedding: requires at least {required_length} samples, got {len(y)}."
+            )
+
+        # Calculate the number of embedded vectors
+        max_start_index = len(y) - required_length
+        n_vectors = (max_start_index // self.stride) + 1
+
+        # Generate start indices
+        start_indices = np.arange(n_vectors) * self.stride
+
+        # Ensure the last embedding includes the last value
+        if self.stride > 1 and n_vectors > 0:
+            start_indices[-1] = len(y) - required_length
+
+        # Resample y by selecting the value corresponding to the last point in each embedded vector
+        resampled_y = y[start_indices + self.time_delay_ * (self.embedding_dimension_ - 1)]
+
+        return resampled_y

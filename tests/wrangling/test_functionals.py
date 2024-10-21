@@ -2,14 +2,14 @@ import pandas as pd
 import polars as pl
 import numpy as np
 
-from src.supplyseer.wrangling.functionals import fill_missing_dates, univariate_takens
+from src.supplyseer.wrangling.functionals import fill_missing_dates, UnivariateTakens
 
 
 def test_functionals():
 
     x = np.random.normal(0, 1, 10000).reshape(-1,1)
     # x = np.array([np.nan]*10000).reshape(-1,1) # Uncomment this line to test for NaNs
-    takens_rows, takens_columns = x.shape[0] - 3, 3
+    takens_rows, takens_columns = x.shape[0] - 2, 3
 
     data = {
     "date": ["2021-01-01", "2021-01-03", "2021-01-05", "2021-01-07", "2021-01-09", "2021-01-11"],
@@ -26,7 +26,8 @@ def test_functionals():
     df_pl = pl.from_pandas(df)
     df_pl = fill_missing_dates(df_pl, time_column="date", period_fill="1d", group_by_columns=["country", "location"], keep_order=True)
 
-    takensarr = univariate_takens(x)
+    unitaken = UnivariateTakens(time_delay=1, embedding_dimension=takens_columns)
+    takensarr = unitaken.fit_transform(x)
 
 
 
