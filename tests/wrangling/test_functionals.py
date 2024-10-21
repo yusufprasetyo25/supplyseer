@@ -26,7 +26,7 @@ def test_functionals():
     df_pl = pl.from_pandas(df)
     df_pl = fill_missing_dates(df_pl, time_column="date", period_fill="1d", group_by_columns=["country", "location"], keep_order=True)
 
-    unitaken = UnivariateTakens()
+    unitaken = UnivariateTakens(time_delay=1, embedding_dimension=takens_columns)
     takensarr = unitaken.fit_transform(x)
 
 
