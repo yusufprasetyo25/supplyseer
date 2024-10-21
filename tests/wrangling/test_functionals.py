@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 import numpy as np
 
-from src.supplyseer.wrangling.functionals import fill_missing_dates, univariate_takens
+from src.supplyseer.wrangling.functionals import fill_missing_dates, UnivariateTakens
 
 
 def test_functionals():
@@ -26,7 +26,8 @@ def test_functionals():
     df_pl = pl.from_pandas(df)
     df_pl = fill_missing_dates(df_pl, time_column="date", period_fill="1d", group_by_columns=["country", "location"], keep_order=True)
 
-    takensarr = univariate_takens(x)
+    unitaken = UnivariateTakens()
+    takensarr = unitaken.fit_transform(x)
 
 
 
