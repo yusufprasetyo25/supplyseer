@@ -1,0 +1,68 @@
+# config/logging_config.yaml
+# Logging configuration settings
+
+# Root logger configuration
+root:
+  level: INFO
+  handlers: [console, file]
+
+# Handler configurations
+handlers:
+  # Console output
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standard
+    stream: ext://sys.stdout
+    
+  # File output
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/system.log
+    maxBytes: 1048576  # 1MB
+    backupCount: 5
+    encoding: utf8
+
+# Formatter configurations
+formatters:
+  # Standard output format
+  standard:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+    
+  # Detailed output format
+  detailed:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(pathname)s:%(lineno)d - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+
+# Logger configurations
+loggers:
+  # Hardware components
+  hardware:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+    qualname: hardware
+    
+  # Processing components
+  processing:
+    level: INFO
+    handlers: [file]
+    propagate: no
+    qualname: processing
+    
+  # Visualization components
+  visualization:
+    level: INFO
+    handlers: [console]
+    propagate: no
+    qualname: visualization
+    
+  # System monitoring
+  monitoring:
+    level: WARNING
+    handlers: [console, file]
+    propagate: no
+    qualname: monitoring

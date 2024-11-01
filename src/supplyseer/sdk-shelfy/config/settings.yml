@@ -1,0 +1,100 @@
+# config/settings.yaml
+# Main system configuration file
+
+# Hardware Configuration
+hardware:
+  arduino:
+    port: "COM3"  # Change according to your system
+    baudrate: 9600
+    timeout: 1.0
+  sensor:
+    rows: 15
+    cols: 15
+    sampling_rate: 100  # Hz
+    resolution: 10      # bits
+    reference_voltage: 5.0
+
+# Processing Configuration
+processing:
+  # Filter settings
+  filter:
+    median_kernel_size: 3
+    gaussian_sigma: 1.0
+    butterworth:
+      cutoff: 0.1
+      order: 4
+  
+  # Threshold settings
+  thresholds:
+    pressure_min: 0.1
+    pressure_max: 0.9
+    activity: 0.2
+    noise: 0.05
+
+  # Matrix processing
+  matrix:
+    interpolation: true
+    smoothing: true
+    edge_detection: false
+
+# Visualization Configuration
+visualization:
+  # Display settings
+  display:
+    update_interval: 50  # ms
+    window_size: [800, 600]
+    colormap: "YlOrRd"
+    
+  # Plot configuration
+  plots:
+    heatmap:
+      enabled: true
+      interpolation: "nearest"
+    histogram:
+      enabled: true
+      bins: 50
+    timeline:
+      enabled: true
+      window: 100  # samples
+    center_of_pressure:
+      enabled: true
+      trail_length: 50
+
+# Data Export Configuration
+export:
+  # File settings
+  file:
+    format: "hdf5"  # Options: hdf5, csv, json
+    compression: true
+    auto_export: false
+    export_interval: 3600  # seconds
+    
+  # Directory settings
+  directories:
+    data: "data/raw"
+    processed: "data/processed"
+    exports: "data/exports"
+
+# System Configuration
+system:
+  # General settings
+  general:
+    debug_mode: false
+    buffer_size: 1000
+    max_memory: 1024  # MB
+    
+  # Logging configuration
+  logging:
+    level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    file: "logs/system.log"
+    max_size: 1048576  # 1MB
+    backup_count: 5
+    
+  # Performance monitoring
+  monitoring:
+    enabled: true
+    interval: 60  # seconds
+    alerts:
+      cpu_threshold: 90  # percent
+      memory_threshold: 90  # percent
+      disk_threshold: 90  # percent

@@ -1,0 +1,66 @@
+# config/calibration.yaml
+# Sensor calibration configuration and data
+
+# Calibration Settings
+settings:
+  # Calibration procedure
+  procedure:
+    num_samples: 50
+    settling_time: 2  # seconds
+    calibration_weights: [0, 100, 500, 1000]  # grams
+    
+  # Reference values
+  reference:
+    min_value: 0
+    max_value: 1023  # 10-bit ADC
+    baseline_threshold: 10
+
+# Calibration Factors
+calibration:
+  # Sensor array calibration matrix
+  matrix_factors:
+    # Will be populated during calibration
+    timestamp: null
+    factors: []
+    
+  # Pressure conversion
+  pressure:
+    scale_factor: 1.0
+    offset: 0.0
+    unit: "kPa"
+
+# Sensor Compensation
+compensation:
+  # Temperature compensation
+  temperature:
+    enabled: true
+    coefficient: 0.002  # per degree C
+    reference_temp: 25  # degrees C
+    
+  # Drift compensation
+  drift:
+    enabled: true
+    time_constant: 3600  # seconds
+    max_correction: 0.1
+
+# Quality Control
+quality:
+  # Validation thresholds
+  thresholds:
+    uniformity: 0.1  # maximum allowed deviation
+    noise: 0.05      # maximum noise level
+    drift: 0.1       # maximum allowed drift
+    
+  # Recalibration triggers
+  recalibration:
+    max_age: 604800  # 7 days in seconds
+    drift_threshold: 0.2
+    temperature_change: 5  # degrees C
+
+# Environmental Parameters
+environment:
+  # Operating conditions
+  conditions:
+    temp_range: [15, 35]  # degrees C
+    humidity_range: [20, 80]  # percent
+    pressure_range: [980, 1020]  # hPa
