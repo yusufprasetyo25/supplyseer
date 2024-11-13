@@ -9,7 +9,7 @@ Awesome! Here's how to get started:
 
 1. **Fork & Clone**
 ```bash
-git clone https://github.com/YOUR_USERNAME/supplyseer.git
+git clone https://github.com/supplyseer-ai/supplyseer.git
 cd supplyseer
 ```
 
