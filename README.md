@@ -16,6 +16,15 @@ Supplyseer provides Permutation Complexity as a metric for time series analysis 
 <br>
 <br>
 
+## <div align="center"> Features </div>
+🚀 Features
+
+* Advanced Forecasting Models: ARIMA, Neural Networks, and Mixture Density Networks <br>
+* Uncertainty Modeling: Bayesian Networks and Probabilistic Models <br>
+* Inventory Optimization: Dynamic Bayesian EOQ and Traditional EOQ <br>
+* Time Series Analysis: Complex metrics and tools for deep analysis <br>
+* Supply Chain Optimization: Scheduling and routing solutions <br>
+
 ## <div align="center"> Models </div>
 Below are some models listed
 
@@ -42,7 +51,7 @@ Below are some models listed
 | [Shannon Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) | Measures the unpredictability or randomnesss |
 | [Permutation Entropy](https://materias.df.uba.ar/dnla2019c1/files/2019/03/permutation_entropy.pdf) | Quantifies the diversity of patterns in the ordinal structure of a time series. It is the first output of `permutation_complexity()`|
 | [Statistical Complexity](https://arxiv.org/pdf/1009.1498) | Measures the structural complexity of a system. It combines entropy with disequilibrium (a measure of structure). It is the second output of `permutation_complexity()`|
-<br
+<br>
 
 ## <div align="center"> Optimization </div>
 This library also supports basic optimization with Google's `ortools`. See below example for a Truck Driver scheduling problem.
@@ -54,5 +63,19 @@ This library also supports basic optimization with Google's `ortools`. See below
 
   [Truck Driver Scheduling problem](https://github.com/jakorostami/supplyseer/blob/feature/development-over-time/examples/truck-driver-routing.ipynb) - You have some truck drivers that you need to schedule for over a time window of 3 days with 3 shifts. Morning, afternoon, and evening. If they had the evening shift they cannot have the morning shift the day after because they need to rest. Also, they have to deliver at least 2 shifts during the 3 day window. <br>
   <br>
- [Demand & Inventory Control](https://github.com/jakorostami/supplyseer/blob/feature/development-over-time/examples/demand-inventory-control.ipynb) - A Supply Chain department for a retail company needs to balance their inventory and demand such that there is also enough inventory to match the demand but the inventory is not allowed to go below a certain level nor above a certain level.
+  Problem: Schedule truck drivers over a 3-day window with multiple constraints: <br>
+    
+    * Three shifts per day (Morning, Afternoon, Evening)
+    * Rest period required between evening and next morning shift
+    * Minimum 2 shifts per driver over 3 days
+    
+  <br>
+  
+ [Demand & Inventory Control](https://github.com/jakorostami/supplyseer/blob/feature/development-over-time/examples/demand-inventory-control.ipynb) - A Supply Chain department for a retail company needs to balance their inventory and demand such that there is also enough inventory to match the demand but the inventory is not allowed to go below a certain level nor above a certain level. <br>
+ <br>
+ Problem: Optimize inventory levels while,
+
+    * Meeting demand requirements
+    * Maintaining minimum safety stock
+    * Respecting maximum storage capacity
 </div>
