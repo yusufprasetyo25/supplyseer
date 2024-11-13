@@ -63,7 +63,7 @@ This library also supports basic optimization with Google's `ortools`. See below
       <img width="100%" src="https://github.com/jakorostami/supplyseer/blob/feature/development-over-time/assets/truckdriver.png" alt="SupplySeer Vision banner"></a>
   </p>
 
-  [Truck Driver Scheduling problem](https://github.com/jakorostami/supplyseer/blob/feature/development-over-time/examples/truck-driver-routing.ipynb) - You have some truck drivers that you need to schedule for over a time window of 3 days with 3 shifts. Morning, afternoon, and evening. If they had the evening shift they cannot have the morning shift the day after because they need to rest. Also, they have to deliver at least 2 shifts during the 3 day window. <br>
+  [Truck Driver Scheduling problem](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/truck-driver-routing.ipynb) - You have some truck drivers that you need to schedule for over a time window of 3 days with 3 shifts. Morning, afternoon, and evening. If they had the evening shift they cannot have the morning shift the day after because they need to rest. Also, they have to deliver at least 2 shifts during the 3 day window. <br>
   <br>
   Problem: Schedule truck drivers over a 3-day window with multiple constraints: <br>
     
