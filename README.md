@@ -7,6 +7,8 @@
 # <div align="center"> SupplySeer </div>
 Welcome to version 0.11!
 
+⚠️ **Pre-release Software Notice**: This library is currently in pre-release alpha (v0.11). The repo may undergo significant changes before the 1.0.0 release. While the statistical implementations are sound, we recommend testing thoroughly before using in production environments.
+
 `supplyseer` is a Python library focused on providing the tools and methods for real-world Supply Chain & Logistics challenges. <br>
 <br>
 You'll find Bayesian Economic Order Quantity (dynamical stochastic EOQ), Probabilistic Bayesian Networks, Neural Networks, <br>
