@@ -42,7 +42,7 @@ Below are some models listed
 | [Shannon Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) | Measures the unpredictability or randomnesss |
 | [Permutation Entropy](https://materias.df.uba.ar/dnla2019c1/files/2019/03/permutation_entropy.pdf) | Quantifies the diversity of patterns in the ordinal structure of a time series. It is the first output of `permutation_complexity()`|
 | [Statistical Complexity](https://arxiv.org/pdf/1009.1498) | Measures the structural complexity of a system. It combines entropy with disequilibrium (a measure of structure). It is the second output of `permutation_complexity()`|
-<br
+<br>
 
 ## <div align="center"> Optimization </div>
 This library also supports basic optimization with Google's `ortools`. See below example for a Truck Driver scheduling problem.
