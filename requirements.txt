@@ -10,3 +10,4 @@ ordpy==1.1.4
 pytest==8.3.0
 pmdarima==2.0.4
 ortools==9.11.4210
+pydantic==2.9.2
