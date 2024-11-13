@@ -73,7 +73,7 @@ This library also supports basic optimization with Google's `ortools`. See below
     
   <br>
   
- [Demand & Inventory Control](https://github.com/jakorostami/supplyseer/blob/feature/development-over-time/examples/demand-inventory-control.ipynb) - A Supply Chain department for a retail company needs to balance their inventory and demand such that there is also enough inventory to match the demand but the inventory is not allowed to go below a certain level nor above a certain level. <br>
+ [Demand & Inventory Control](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/demand-inventory-control.ipynb) - A Supply Chain department for a retail company needs to balance their inventory and demand such that there is also enough inventory to match the demand but the inventory is not allowed to go below a certain level nor above a certain level. <br>
  <br>
  Problem: Optimize inventory levels while,
 
