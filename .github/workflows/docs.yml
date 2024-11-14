@@ -1,16 +1,21 @@
 name: docs
-
 on:
   push:
     branches:
       - main
       - develop
 
+      
 jobs:
   docs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pages: write      # Add this
+      id-token: write   # Add this
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}    # Add this
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
