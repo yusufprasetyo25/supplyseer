@@ -4,7 +4,7 @@ from typing import Dict
 from pydantic import ValidationError
 import matplotlib.pyplot as plt
 
-from src.supplyseer.models.statistical.stochasticprocess import DemandSimConfig, StochasticDemandProcess, DemandPathResult
+from supplyseer.models.statistical.stochasticprocess import DemandSimConfig, StochasticDemandProcess, DemandPathResult
 
 @pytest.fixture
 def default_config() -> Dict:

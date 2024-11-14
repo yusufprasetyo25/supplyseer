@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.supplyseer.models.statistical.arima import ARIMAModel
+from supplyseer.models.statistical.arima import ARIMAModel
 
 def test_arima_model():
 

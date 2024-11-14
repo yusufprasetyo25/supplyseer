@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "supplyseer"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Jako Rostami", email="rostami.jako@gmail.com" },
 ]
@@ -16,10 +16,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    # List dependencies here
+
+]
 
 [project.urls]
 "Homepage" = "https://github.com/jakorostami/supplyseer"
 "Bug Tracker" = "https://github.com/jakorostami/supplyseer/issues"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/supplyseer"]

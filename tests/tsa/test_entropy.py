@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
-from src.supplyseer.tsa.advanced.entropy import shannon_entropy, permutation_complexity
+from supplyseer.tsa.advanced.entropy import shannon_entropy, permutation_complexity
 
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.supplyseer.models.statistical.pca import PCA
+from supplyseer.models.statistical.pca import PCA
 
 
 def test_pca():

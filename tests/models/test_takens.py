@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 from sklearn.exceptions import NotFittedError
-from src.supplyseer.models.topological.takens import *
+from supplyseer.models.topological.takens import *
 
 def test_takens_embedding_basic():
     """Test basic embedding functionality"""
