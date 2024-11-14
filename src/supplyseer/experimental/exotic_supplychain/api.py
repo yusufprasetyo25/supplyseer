@@ -4,7 +4,6 @@ from datetime import datetime, date
 from pydantic import BaseModel, Field
 import uvicorn
 import os
-os.chdir("D:/my_py_packages/supplyseer")
 from exotic_supplychain.geopolitical import *
 
 # API Request/Response Models
