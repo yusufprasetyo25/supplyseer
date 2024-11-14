@@ -3,7 +3,7 @@ import polars as pl
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted, column_or_1d
-from src.supplyseer.wrangling.__utils import (
+from supplyseer.wrangling.__utils import (
     validate_params, takens_embedding_optimal_parameters, time_delay_embedding
 )
 

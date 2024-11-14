@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 import numpy as np
 
-from src.supplyseer.wrangling.functionals import fill_missing_dates, UnivariateTakens
+from supplyseer.wrangling.functionals import fill_missing_dates, UnivariateTakens
 
 
 def test_functionals():

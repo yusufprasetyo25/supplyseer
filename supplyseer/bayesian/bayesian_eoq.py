@@ -1,5 +1,5 @@
 import numpy as np
-from src.supplyseer.eoq import eoq
+from supplyseer.eoq import eoq
 from typing import List, Union, Optional, Dict
 
 

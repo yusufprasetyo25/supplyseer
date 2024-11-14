@@ -1,5 +1,5 @@
 import numpy as np
-from src.supplyseer.bayesian.bayesian_eoq import bayesian_eoq_full, bayesian_computation, normal_pdf
+from supplyseer.bayesian.bayesian_eoq import bayesian_eoq_full, bayesian_computation, normal_pdf
 
 def test_that_bayesian_eoq_and_computation_works():
     

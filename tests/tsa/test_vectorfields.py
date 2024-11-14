@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import pandas as pd
-from src.supplyseer.tsa.advanced.vectorfields import StockoutProbability, DemandInventorySimulation  # replace with your module path
+from supplyseer.tsa.advanced.vectorfields import StockoutProbability, DemandInventorySimulation  # replace with your module path
 
 def test_stockout_probability_initialization():
     # Test default initialization

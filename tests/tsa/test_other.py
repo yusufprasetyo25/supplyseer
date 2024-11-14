@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.supplyseer.tsa.statistical.other import manipulative_index, hurst_exp_rs
+from supplyseer.tsa.statistical.other import manipulative_index, hurst_exp_rs
 
 def test_other_statistical_metrics():
 
