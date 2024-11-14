@@ -6,7 +6,7 @@ import networkx as nx
 
 
 class SupplyChainNode:
-    def __init__(self, name, dataframe, flow_mode='projected_stock'):
+    def __init__(self, name, dataframe, flow_mode='projected_stock', verbose=False):
         """
         Initialize node with specified flow mode
         flow_mode options: 
@@ -18,6 +18,7 @@ class SupplyChainNode:
         self.timestamps = dataframe.index
         self.flow_mode = flow_mode
         self.is_warehouse = 'Warehouse' in name
+        self.verbose = verbose
         
         # Initial stock level
         self.stock_level = dataframe['stock_level'].iloc[0]
@@ -62,11 +63,9 @@ class SupplyChainNode:
 
     def check_and_place_order(self, current_timestamp_idx):
         """Check if we need to place a replenishment order based on flow mode"""
-        # In diffusion and hybrid modes, only warehouses place orders
         if (self.flow_mode in ['diffusion', 'hybrid'] and not self.is_warehouse):
             return
             
-        # In projected_stock mode, all nodes place orders
         if self.flow_mode == 'projected_stock' or self.is_warehouse:
             if current_timestamp_idx < 2:
                 return
@@ -80,9 +79,11 @@ class SupplyChainNode:
                 arrival_time = current_timestamp_idx + self.replenishment_lead_time
                 self.pending_orders.append((arrival_time, order_amount))
                 self.results.iloc[current_timestamp_idx, self.results.columns.get_loc('ordered_amount')] = order_amount
-                print(f"{self.name} placed order for {order_amount:.2f} units, arriving in {self.replenishment_lead_time} days")
-                print(f"  Current stock: {current_stock:.2f}, Projected stock: {projected_stock:.2f}, "
-                      f"Avg daily sales: {prev_sales:.2f}")
+                
+                if self.verbose:
+                    print(f"{self.name} placed order for {order_amount:.2f} units, arriving in {self.replenishment_lead_time} days")
+                    print(f"  Current stock: {current_stock:.2f}, Projected stock: {projected_stock:.2f}, "
+                          f"Avg daily sales: {prev_sales:.2f}")
 
     def process_pending_orders(self, current_timestamp_idx):
         """Process any pending orders that have arrived"""
@@ -92,7 +93,8 @@ class SupplyChainNode:
         total_arrived = sum(order[1] for order in arrived_orders)
         if total_arrived > 0:
             self.update_inventory(incoming=total_arrived, outgoing=0, timestamp_idx=current_timestamp_idx)
-            print(f"{self.name} received {total_arrived:.2f} units from external supplier")
+            if self.verbose:
+                print(f"{self.name} received {total_arrived:.2f} units from external supplier")
 
     def calculate_potential_energy(self, timestamp_idx):
         """Calculate potential energy using numeric index"""
@@ -109,10 +111,9 @@ class SupplyChainNode:
         return unused
         
     def update_inventory(self, incoming, outgoing, timestamp_idx):
-        """Update inventory with incoming and outgoing flows"""
         current_inventory = self.results.iloc[timestamp_idx]['stock_level']
         net_flow = incoming - outgoing
-        new_inventory = max(current_inventory + net_flow, 0)  # Prevent negative inventory
+        new_inventory = max(current_inventory + net_flow, 0)
         
         self.results.iloc[timestamp_idx, self.results.columns.get_loc('stock_level')] = new_inventory
         self.results.iloc[timestamp_idx, self.results.columns.get_loc('stockout')] = 1 if new_inventory <= 0 else 0
@@ -121,6 +122,9 @@ class SupplyChainNode:
         self.calculate_unused_potential(timestamp_idx)
         
         return net_flow
+    
+    def add_pending_flow(self, flow_amount, arrival_time):
+        self.pending_flows.append((arrival_time, flow_amount))
     
     def add_pending_flow(self, flow_amount, arrival_time):
         """Add a pending flow from diffusion"""
@@ -134,11 +138,12 @@ class SupplyChainNode:
         total_arrived = sum(flow[1] for flow in arrived_flows)
         if total_arrived > 0:
             self.update_inventory(incoming=total_arrived, outgoing=0, timestamp_idx=current_timestamp_idx)
-            print(f"{self.name} received {total_arrived:.2f} units from diffusion flow")
+            if self.verbose:
+                print(f"{self.name} received {total_arrived:.2f} units from diffusion flow")
 
 
 class SupplyChainNetwork:
-    def __init__(self, nodes, edges, flow_mode='projected_stock'):
+    def __init__(self, nodes, edges, flow_mode='projected_stock', verbose=False):
         """
         Initialize network with specified flow mode
         flow_mode options: 
@@ -149,6 +154,7 @@ class SupplyChainNetwork:
         self.nodes = nodes
         self.edges = edges
         self.flow_mode = flow_mode
+        self.verbose = verbose
         
         # Ensure all nodes have same flow mode as network
         for node in self.nodes.values():
@@ -476,7 +482,8 @@ class SupplyChainNetwork:
                     prev_stock = node.results.iloc[t-1]['stock_level']
                     node.results.iloc[t, node.results.columns.get_loc('stock_level')] = prev_stock
             
-            print(f"\nTimestep {t}: {timesteps[t]}")
+            if self.verbose:
+                print(f"\nTimestep {t}: {timesteps[t]}")
             total_kinetic_energy = 0
             
             time_delta = (timesteps[t] - initial_time).total_seconds() / (24 * 3600)
@@ -583,9 +590,10 @@ class SupplyChainNetwork:
         self.plot_results(time_deltas, kinetic_energy_history)
         
 
-    def plot_results(self, time_deltas, kinetic_energy_history):
+    def plot_results(self, time_deltas, kinetic_energy_history, style: str = "dark_background"):
         import seaborn as sns
         """Plot comprehensive results"""
+        plt.style.use(style)
         plt.figure(figsize=(15, 18))
         ROWS = 6
         # Plot 1: System Energy
