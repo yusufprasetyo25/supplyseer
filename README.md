@@ -38,7 +38,8 @@ Below are some models listed
 | [Neural Network](https://en.wikipedia.org/wiki/Neural_network_(machine_learning)) | Machine Learning Modeling | 
 | [Mixture Density Network](https://deep-and-shallow.com/2021/03/20/mixture-density-networks-probabilistic-regression-for-uncertainty-estimation/) | Probabilistic Machine Learning Modeling with multi-modal data |
 | [Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) | Embeddings in Machine Learning (dimensionality reduction) |
-
+| [Hawkes Process](https://en.m.wikipedia.org/wiki/Hawkes_process) | Multivariate Hawkes process in supply chains models how disruptions in one area can trigger related issues across the network, predicting ripple effects from initial events. |
+| [Supply Chain Digital Twin Network](https://towardsdatascience.com/what-is-a-supply-chain-digital-twin-e7a8cd9aeb75?gi=120a86059486) | A Supply Chain Digital Twin of the real Supply Chain is a computer model that represents the processes and components of the real one |
 <br>
 
 ## <div align="center"> Tools & Metrics </div>
@@ -53,6 +54,7 @@ Below are some models listed
 | [Shannon Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) | Measures the unpredictability or randomnesss |
 | [Permutation Entropy](https://materias.df.uba.ar/dnla2019c1/files/2019/03/permutation_entropy.pdf) | Quantifies the diversity of patterns in the ordinal structure of a time series. It is the first output of `permutation_complexity()`|
 | [Statistical Complexity](https://arxiv.org/pdf/1009.1498) | Measures the structural complexity of a system. It combines entropy with disequilibrium (a measure of structure). It is the second output of `permutation_complexity()`|
+
 <br>
 
 ## <div align="center"> Optimization </div>
