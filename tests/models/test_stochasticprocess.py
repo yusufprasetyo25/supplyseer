@@ -4,7 +4,6 @@ from typing import Dict
 from pydantic import ValidationError
 import matplotlib.pyplot as plt
 
-# Import your classes
 from src.supplyseer.models.statistical.stochasticprocess import DemandSimConfig, StochasticDemandProcess, DemandPathResult
 
 @pytest.fixture
