@@ -82,4 +82,21 @@ This library also supports basic optimization with Google's `ortools`. See below
     * Meeting demand requirements
     * Maintaining minimum safety stock
     * Respecting maximum storage capacity
+
+
+
+
+## <div align="center"> Contributing 🤝 </div>
+
+
+
+We love contributions! Whether you're fixing bugs, adding features, or improving documentation, your help makes `supplyseer` better for everyone.
+
+Check out our [Contributing Guide](CONTRIBUTING.md) to get started, and join our friendly community. No contribution is too small, and all contributors are valued!
+
+Want to help but not sure how? See our [Issues](https://github.com/supplyseer-ai/supplyseer/issues) or start a [Discussion](https://github.com/supplyseer-ai/supplyseer/discussions). We're happy to guide you! 🎲✨
+
+
+
+    
 </div>
