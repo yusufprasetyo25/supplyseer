@@ -49,6 +49,12 @@ Then head to GitHub and create a Pull Request!
 
 ## Types of Contributions 🌟
 
+### Code philosophy
+- Be OOP oriented
+- Be modular
+- Don't put all code in one module if it becomes complex
+- Tests helps us remove the burden of reviews on each other and keeps the code robust
+
 ### 🐛 Found a Bug?
 - Check if it's already reported in Issues
 - If not, create a new issue with a clear description
