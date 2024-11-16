@@ -17,6 +17,7 @@ Principal Component Analaysis, time series models like ARIMA, and evaluation met
 Supplyseer provides Permutation Complexity as a metric for time series analysis but also Manipulability Index and Hurst Exponent and many more.
 <br>
 <br>
+**Check Tutorials section for guides and examples!**
 
 ## <div align="center"> Installation </div>
 
