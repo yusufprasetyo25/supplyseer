@@ -29,9 +29,189 @@ class SupplyChainGame:
                 return False
             all_players.update(member_ids)
         return True
+    
+    def _calculate_gc_value(self, coalition: Coalition, base_demand: float, alpha: float,
+                        supplier_costs: float, manufacturer_costs: float,
+                        fixed_costs: float) -> float:
+        """
+        Calculate grand coalition value based on equations (11)-(12)
+        """
+        # Get suppliers and manufacturers from coalition
+        suppliers = {p for p in coalition.members if p.type == PlayerType.SUPPLIER}
+        manufacturers = {p for p in coalition.members if p.type == PlayerType.MANUFACTURER}
         
+        # Divide costs by capacity to get per-unit costs
+        capacity = min(sum(s.capacity for s in suppliers),
+                    sum(m.capacity for m in manufacturers))
+        unit_costs = (supplier_costs + manufacturer_costs) / capacity if capacity > 0 else 0
+        
+        # Optimal price from equation (11)
+        p_star = (base_demand/(2*alpha)) + (unit_costs/2)
+        
+        # Calculate value using equation (12) 
+        value = ((base_demand - alpha*p_star)*(p_star - unit_costs)) - fixed_costs
+        return value
+
+    def _calculate_vc_value(self, coalition: Coalition, base_demand: float, alpha: float,
+                            supplier_costs: float, manufacturer_costs: float,
+                            fixed_costs: float, partition: Partition) -> float:
+        """
+        Calculate vertical cooperation value based on equations (24)-(25)
+        U_Vi = (D_Mi(p_i - C_Mi - C_S) + F_M-i D_M-i(q - C_S) - O_S - O_Mi)F_Vi
+        """
+        # Get suppliers and manufacturers from coalition
+        suppliers = {p for p in coalition.members if p.type == PlayerType.SUPPLIER}
+        manufacturers = {p for p in coalition.members if p.type == PlayerType.MANUFACTURER}
+        
+        capacity = min(sum(s.capacity for s in suppliers),
+                    sum(m.capacity for m in manufacturers))
+        unit_costs = (supplier_costs + manufacturer_costs) / capacity if capacity > 0 else 0
+
+        other_coalitions = [c for c in partition.coalitions if c != coalition]
+        competing_manuf = next(
+            (p for c in other_coalitions for p in c.members
+            if p.type == PlayerType.MANUFACTURER),
+            None
+        )
+
+        if competing_manuf:
+            # Handle competition case with equations (51)
+            p_star = (base_demand + alpha*unit_costs)/(2*alpha)
+            q_star = (base_demand + alpha*unit_costs)/(4*alpha)
+            
+            # Calculate demands
+            D_Mi = base_demand - alpha*p_star
+            D_M_other = base_demand - alpha*q_star
+            
+            # Value includes both direct sales and supplier revenue from competitor
+            value = (D_Mi*(p_star - unit_costs) + 
+                    D_M_other*(q_star - supplier_costs/capacity)) - fixed_costs
+        else:
+            # Without competition
+            p_star = base_demand/(2*alpha) + unit_costs/2
+            q_star = base_demand/(4*alpha) + unit_costs/2
+            
+            # Only direct sales in value calculation
+            value = (base_demand - alpha*p_star)*(p_star - unit_costs) - fixed_costs
+
+        return value
+
+    def _calculate_alc_value(self, coalition: Coalition, base_demand: float, alpha: float,
+                            supplier_costs: float, manufacturer_costs: float, 
+                            fixed_costs: float, partition: Partition) -> float:
+        """
+        Calculate ALC (All Alone Case) value based on equations (3)-(4)
+        U_Mi = ((D_Mi(a_M)(p_i - C_Mi - q)F_S - O_Mi)F_Mi  # For manufacturer
+        U_S = (ΣD_Mi(a_M)F_Mi)(q - C_S) - O_S)F_S  # For supplier
+        """
+        suppliers = {p for p in coalition.members if p.type == PlayerType.SUPPLIER}
+        manufacturers = {p for p in coalition.members if p.type == PlayerType.MANUFACTURER}
+        
+        capacity = min(sum(s.capacity for s in suppliers), 
+                    sum(m.capacity for m in manufacturers))
+        unit_costs = (supplier_costs + manufacturer_costs) / capacity if capacity > 0 else 0
+
+        # From Theorem 1
+        p_star = base_demand/(2*alpha) + unit_costs
+        q_star = base_demand/(4*alpha) + unit_costs/2
+
+        # Calculate demand
+        D_M = base_demand - alpha*p_star
+
+        if any(p.type == PlayerType.SUPPLIER for p in coalition.members):
+            # Supplier's utility from equation (4)
+            value = D_M*(q_star - supplier_costs/capacity) - fixed_costs
+        else:
+            # Manufacturer's utility from equation (3)
+            value = D_M*(p_star - manufacturer_costs/capacity - q_star) - fixed_costs
+
+        return value
+    
+    # TODO: investigate why this produces very large values
+    # def calculate_coalition_value(self, coalition: Coalition, partition: Partition) -> float:
+    #     """Calculate coalition value combining practical and theoretical calculations"""
+    #     if not coalition.members:
+    #         return 0.0
+
+    #     suppliers = {p for p in coalition.members if p.type == PlayerType.SUPPLIER}
+    #     manufacturers = {p for p in coalition.members if p.type == PlayerType.MANUFACTURER}
+
+    #     # Base capacity checks
+    #     supplier_capacity = sum(s.capacity for s in suppliers) if suppliers else 0.0
+    #     manufacturer_capacity = sum(m.capacity for m in manufacturers) if manufacturers else 0.0
+
+    #     if supplier_capacity == 0.0 or manufacturer_capacity == 0.0:
+    #         return 0.0
+
+    #     capacity = min(supplier_capacity, manufacturer_capacity)
+
+    #     # Market power calculations
+    #     market_power = max((p.market_power for p in coalition.members), default=0.0)
+    #     market_power = max(0.0, min(1.0, market_power))
+
+    #     # Competing power calculation
+    #     competing_coalitions = [c for c in partition.coalitions if c != coalition and c.members]
+    #     if competing_coalitions:
+    #         competing_power = max(
+    #             max((p.market_power for p in c.members), default=0.0)
+    #             for c in competing_coalitions
+    #         )
+    #         competing_power = max(0.0, min(1.0, competing_power))
+    #     else:
+    #         competing_power = 0.0
+
+    #     # Calculate base parameters for theoretical calculations
+    #     base_demand = capacity * market_power * 100  # Scale demand by capacity and market power
+    #     alpha = 0.7  # Demand sensitivity parameter (can be tuned)
+    #     supplier_costs = sum(s.production_cost for s in suppliers)
+    #     manufacturer_costs = sum(m.production_cost for m in manufacturers)
+    #     fixed_costs = sum(p.setup_cost for p in coalition.members)
+
+    #     # Calculate theoretical value based on coalition type
+    #     if len(partition.coalitions) == 1:  # Grand coalition
+    #         print("Coalition type is Grand Coalition (GC)")
+    #         theoretical_value = self._calculate_gc_value(coalition, base_demand, alpha,
+    #                                                 supplier_costs, manufacturer_costs,
+    #                                                 fixed_costs)
+    #     elif len(suppliers) == 1 and len(manufacturers) == 1:  # Vertical cooperation
+    #         print("Coalition type is Vertical Cooperation (VC)")
+    #         theoretical_value = self._calculate_vc_value(coalition, base_demand, alpha,
+    #                                                 supplier_costs, manufacturer_costs,
+    #                                                 fixed_costs, partition)
+    #     else:  # All alone case
+    #         print("Coalition type is All Alone Case (ALC)")
+    #         theoretical_value = self._calculate_alc_value(coalition, base_demand, alpha,
+    #                                                     supplier_costs, manufacturer_costs,
+    #                                                     fixed_costs, partition)
+
+    #     # Calculate practical value
+    #     practical_value = capacity * market_power * (1.0 - 0.5 * competing_power)
+
+    #     # Combine theoretical and practical values with scaling
+    #     THEORY_WEIGHT = 0.3  # Can be tuned
+    #     SCALING_FACTOR = 0.001  # Scale theoretical value to practical range
+
+    #     print(f"Practical value: {practical_value}")
+    #     combined_value = (
+    #         (1 - THEORY_WEIGHT) * practical_value + 
+    #         THEORY_WEIGHT * theoretical_value * SCALING_FACTOR
+    #     ) - fixed_costs
+    #     print(f"Combined value: {combined_value}")
+
+    #     return max(0.0, combined_value)
+
+    
     def calculate_coalition_value(self, coalition: Coalition, partition: Partition) -> float:
-        """Calculate value of coalition given partition configuration with improved stability"""
+        """
+        Calculate value of coalition given partition configuration with improved stability
+        "Partition-form Cooperative Games" - Wadhwa et al, in section 2 they discuss:
+            - Coalition formation requires both suppliers and manufacturers
+            - Capacity is limited by minimum of supplier and manufacturer capacities
+
+            Section 5:
+            - Production costs are summed across coalition members
+            - Market power influences coalition worth
+        """
         if not coalition.members:
             return 0.0
 
@@ -180,35 +360,48 @@ class SupplyChainGame:
     def simulate_period(self, partition: Partition) -> Dict[str, float]:
         """Simulate one time period with given partition structure"""
         metrics = {}
-        
+
         for coalition in partition.coalitions:
             # Calculate actual contributions
             for player in coalition.members:
                 contribution = player.capacity * np.random.normal(1, 0.1)
                 coalition.contributions[player] = contribution
-                
+
                 # Update market power based on contribution
                 expected = player.capacity
                 player.market_power = 0.9 * player.market_power + 0.1 * (contribution / expected)
-                
+
             # Update coalition stability
             shapley_values = {
                 p: self.calculate_shapley_value(p, coalition)
                 for p in coalition.members
             }
-            
-            stability = np.mean([
-                1 - abs(shapley_values[p] - coalition.contributions[p])/shapley_values[p]
-                for p in coalition.members
-            ])
+
+            # Modified stability calculation to handle zero Shapley values
+            stability_terms = []
+            for p in coalition.members:
+                if shapley_values[p] == 0:
+                    if coalition.contributions[p] == 0:
+                        # Both Shapley value and contribution are 0
+                        stability_terms.append(1.0)
+                    else:
+                        # Shapley value is 0 but contribution isn't
+                        stability_terms.append(0.0)
+                else:
+                    # Normal case
+                    stability_terms.append(
+                        1 - abs(shapley_values[p] - coalition.contributions[p])/shapley_values[p]
+                    )
+
+            stability = np.mean(stability_terms)
             coalition.stability_index = stability
-            
+
         self.history.append({
             'partition': partition,
             'total_value': sum(c.value for c in partition.coalitions),
             'avg_stability': np.mean([c.stability_index for c in partition.coalitions])
         })
-        
+
         return metrics
 
     def _get_subsets(self, players: Set[Player]) -> List[Set[Player]]:
