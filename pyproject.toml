@@ -4,21 +4,40 @@ build-backend = "hatchling.build"
 
 [project]
 name = "supplyseer"
-version = "0.1.1"
+version = "0.2.1"
 authors = [
   { name="Jako Rostami", email="rostami.jako@gmail.com" },
 ]
-description = "SupplySeer is a time series library for computational Supply Chain."
+description = "SupplySeer is a library for Applied Computational Supply Chain & Logistics. Unlock Neural Nets, Bayesian EOQ, Optimization, Time Series, Game Theory, and more for smarter decisions."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Office/Business :: Financial :: Accounting",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Manufacturing",
 ]
 dependencies = [
     # List dependencies here
 
+]
+
+keywords = [
+    "supply-chain",
+    "logistics",
+    "game-theory",
+    "optimization",
+    "risk-analysis",
+    "operations-research",
+    "inventory-management",
+    "coalition-formation",
+    "bayesian-networks"
 ]
 
 [project.urls]
