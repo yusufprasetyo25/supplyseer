@@ -2,7 +2,7 @@ from typing import Dict, List, Set, Tuple, Optional, Union
 import numpy as np
 from pydantic import BaseModel, Field, validator
 from enum import Enum
-from gameconfig import (Player, PlayerType, Coalition, Partition)
+from supplyseer.gametheory.gameconfig import (Player, PlayerType, Coalition, Partition)
 from itertools import combinations
 
 class SupplyChainGame:
