@@ -50,6 +50,7 @@ Below are some models listed
 | [Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) | Embeddings in Machine Learning (dimensionality reduction) |
 | [Hawkes Process](https://en.m.wikipedia.org/wiki/Hawkes_process) | Multivariate Hawkes process in supply chains models how disruptions in one area can trigger related issues across the network, predicting ripple effects from initial events. |
 | [Supply Chain Digital Twin Network](https://towardsdatascience.com/what-is-a-supply-chain-digital-twin-e7a8cd9aeb75?gi=120a86059486) | A Supply Chain Digital Twin of the real Supply Chain is a computer model that represents the processes and components of the real one |
+| [Game Theory Module](https://pubsonline.informs.org/doi/pdf/10.1287/educ.1063.0023) | Cooperative Supply Chain game with Coalition based gaming among players (suppliers, manufacturers, retailers) and you. |
 <br>
 
 ## <div align="center"> Tools & Metrics </div>
