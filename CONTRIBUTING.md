@@ -5,21 +5,26 @@ Hey there! Thanks for your interest in making SupplySeer even better. Whether yo
 ## How We Build Together 🛠️
 
 ### First Time Contributing?
+
 Awesome! Here's how to get started:
 
-1. **Fork & Clone**
+1. **Install SupplySeer**
 ```bash
-git clone https://github.com/supplyseer-ai/supplyseer.git
-cd supplyseer
+pip install supplyseer
 ```
 
-2. **Set Up Your Environment**
+2. **Set Up Development Environment**
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -e .
+# Fork the repository on GitHub first, then:
+git clone https://github.com/YOUR_USERNAME/supplyseer.git
+cd supplyseer
+
+# Install development dependencies
 pip install pytest pytest-cov black isort mypy pre-commit ortools
 pre-commit install
+
+# Install package in editable mode for development
+pip install -e .
 ```
 
 ### Making Changes 📝
@@ -49,7 +54,7 @@ Then head to GitHub and create a Pull Request!
 
 ## Types of Contributions 🌟
 
-### Code philosophy
+### Code Philosophy
 - Be OOP oriented
 - Be modular
 - Don't put all code in one module if it becomes complex
@@ -64,6 +69,7 @@ Then head to GitHub and create a Pull Request!
 - Share it in Issues!
 - Let's discuss how to make it happen
 - Ideas particularly welcome for:
+  - Game theoretic applications in supply chains
   - New supply chain metrics
   - Optimization algorithms
   - Inventory management models
@@ -94,9 +100,9 @@ Then head to GitHub and create a Pull Request!
 - Include mathematical notation when needed
 - Document assumptions and limitations
 
-## Supply Chain & Logistics Contributions 📦
+## Supply Chain & Game Theory Contributions 📦🎲
 
-When adding new supply chain methods:
+When adding new methods:
 - Reference academic papers/books if applicable
 - Explain the business context and use case
 - Add examples with known results
@@ -106,6 +112,9 @@ When adding new supply chain methods:
 - Add real-world applicability notes
 
 Key areas of focus:
+- Cooperative game theory applications
+- Coalition formation algorithms
+- Shapley value computations
 - Inventory optimization
 - Demand forecasting
 - Route optimization
@@ -122,7 +131,6 @@ Key areas of focus:
 4. We'll work together to get your contribution merged
 
 ## Need Help? 🤝
-
 - Got stuck? Create an issue and ask!
 - Not sure how to start? We'll guide you!
 - Found something confusing? Let's make it clearer!
@@ -132,7 +140,6 @@ Key areas of focus:
 All contributors are valued members of our community! Your name will be automatically added to the project's GitHub contributors.
 
 ## Code of Conduct 🤝
-
 - Be patient and kind
 - Ask questions when unsure
 - Help others learn
@@ -147,5 +154,4 @@ Every contribution makes SupplySeer better. We're grateful you're here!
 Happy coding! 🚚📊✨
 
 ---
-
-*Remember: This is a professional community project focused on advancing supply chain analytics. Let's collaborate to build better supply chain solutions together!*
+*Remember: This is a professional community project focused on advancing supply chain analytics and game theory applications. Let's collaborate to build better supply chain solutions together!*
