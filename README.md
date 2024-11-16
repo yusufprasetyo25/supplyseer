@@ -94,15 +94,26 @@ This library also supports basic optimization with Google's `ortools`. See below
     * Maintaining minimum safety stock
     * Respecting maximum storage capacity
 
-## <div align="center"> Tutorials </div>
+## <div align="center"> Tutorials & Examples </div>
+In this section you'll find Tutorials and Examples, they exist in respective subfolder. Their differences is that tutorials are comprehensive and examples are just quick demonstrations of the modules.
 
-
-| Model | Use case |
+| Tutorial | Description |
 | --- | --- |
 | [Supply Chain Digital Twin](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/supplychain-digitaltwin-network/digitaltwin.ipynb) | Simulating Digital Twins with classical policy, diffusion based reorders, and hybrid mode. Kinetic energy represents how well the system is "flowing" in balancing inventory. |
 | [Stochastic Demand Simulation with decaying Geometric Brownian Motion](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/demand-simulation/demand.ipynb) | Simulate stochastic demand processes using a Geometric Brownian Motion (GBM) model with decay, produce mean path trajectories, simulate thousands of paths, and find the final distribution of your demand at end time T|
 | [Game Theoretic Supply Chain](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/game-theory/coopgame.ipynb) | Create a Cooperative Game in your Supply Chain with your suppliers and manufacturers to find partnerships, coalitions, and Nash equilibrium |
 | [Geopolitical Risk API & GDELT Monitor API](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/geopolitical-risk/geopolitical.ipynb) | Explore the supplyseer API for Geopolitical Risk assessments and do Sentiment Analysis with the GDELT Monitor API and HuggingFace | 
+<br>
+
+| Example | Description |
+| --- | --- |
+| [Bayesian Economic Order Quantity Modeling](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/order-quantity.ipynb) | Simulate Bayesian EOQ with Approximate Bayesian Computation with Normal distributions. Dynamic and Stochastic approach with credible intervals. |
+| [Multivariate Hawkes Demand and Inventory](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/hawkes-supplychain.ipynb) | Creates a self-exciting Supply Chain simulation of demand and inventory process. |
+| [Probabilistic Bayesian Network](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/supplychain-example.ipynb) | Model your expertise, knowledge, or data as a Probabilistic Network to do causal analysis, counterfactual analysis, or probabilistic modeling |
+| [Vector Field Dynamics Analysis of Demand and Inventory](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/vector-field.ipynb) | Use Physics based approaches to your demand and inventory analysis by using Vector Fields to find equilibrium states, convergence, or divergence paths in your Supply Chain system. | 
+| [Truck Driver Scheduling Optimization](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/truck-driver-routing.ipynb) | Schedule the most optimal way for your truck drivers with realistic constraints. |
+| [Demand and Inventory Control](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/demand-inventory-control.ipynb) | Find the most optimal way for your demand and inventory that holds your costs. |
+| [Topological Time Series](https://github.com/supplyseer-ai/supplyseer/blob/develop/examples/time-series.ipynb) | Use financial stock tickers, Tesla and Apple, and Takens Embeddings with PCA to do phase space reconstruction of the signal. |
 
 
 ## <div align="center"> Contributing 🤝 </div>
