@@ -18,6 +18,16 @@ Supplyseer provides Permutation Complexity as a metric for time series analysis 
 <br>
 <br>
 
+## <div align="center"> Installation </div>
+
+You can install `supplyseer` directly from PyPI:
+
+```bash
+pip install supplyseer==0.2.0
+```
+
+For development installation, see our [Contributing Guide](CONTRIBUTING.md).
+
 ## <div align="center"> Features </div>
 🚀 Features
 
@@ -40,6 +50,7 @@ Below are some models listed
 | [Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) | Embeddings in Machine Learning (dimensionality reduction) |
 | [Hawkes Process](https://en.m.wikipedia.org/wiki/Hawkes_process) | Multivariate Hawkes process in supply chains models how disruptions in one area can trigger related issues across the network, predicting ripple effects from initial events. |
 | [Supply Chain Digital Twin Network](https://towardsdatascience.com/what-is-a-supply-chain-digital-twin-e7a8cd9aeb75?gi=120a86059486) | A Supply Chain Digital Twin of the real Supply Chain is a computer model that represents the processes and components of the real one |
+| [Game Theory Module](https://pubsonline.informs.org/doi/pdf/10.1287/educ.1063.0023) | Cooperative Supply Chain game with Coalition based gaming among players (suppliers, manufacturers, retailers) and you. |
 <br>
 
 ## <div align="center"> Tools & Metrics </div>
@@ -83,7 +94,15 @@ This library also supports basic optimization with Google's `ortools`. See below
     * Maintaining minimum safety stock
     * Respecting maximum storage capacity
 
+## <div align="center"> Tutorials </div>
 
+
+| Model | Use case |
+| --- | --- |
+| [Supply Chain Digital Twin](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/supplychain-digitaltwin-network/digitaltwin.ipynb) | Simulating Digital Twins with classical policy, diffusion based reorders, and hybrid mode. Kinetic energy represents how well the system is "flowing" in balancing inventory. |
+| [Stochastic Demand Simulation with decaying Geometric Brownian Motion](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/demand-simulation/demand.ipynb) | Simulate stochastic demand processes using a Geometric Brownian Motion (GBM) model with decay, produce mean path trajectories, simulate thousands of paths, and find the final distribution of your demand at end time T|
+| [Game Theoretic Supply Chain](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/game-theory/coopgame.ipynb) | Create a Cooperative Game in your Supply Chain with your suppliers and manufacturers to find partnerships, coalitions, and Nash equilibrium |
+| [Geopolitical Risk API & GDELT Monitor API](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/geopolitical-risk/geopolitical.ipynb) | Explore the supplyseer API for Geopolitical Risk assessments and do Sentiment Analysis with the GDELT Monitor API and HuggingFace | 
 
 
 ## <div align="center"> Contributing 🤝 </div>
