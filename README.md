@@ -5,7 +5,7 @@
   </p>
 
 # <div align="center"> SupplySeer </div>
-Welcome to version 0.2.0 (pre-release alpha)!
+Welcome to version 0.2 (pre-release alpha)!
 
 ⚠️ **Pre-release Software Notice**: This library is currently in pre-release alpha (v0.2). The repo may undergo significant changes before the 1.0.0 release. While the statistical implementations are sound, we recommend testing thoroughly before using in production environments.
 
