@@ -94,7 +94,15 @@ This library also supports basic optimization with Google's `ortools`. See below
     * Maintaining minimum safety stock
     * Respecting maximum storage capacity
 
+## <div align="center"> Tutorials </div>
 
+
+| Model | Use case |
+| --- | --- |
+| [Supply Chain Digital Twin](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/supplychain-digitaltwin-network/digitaltwin.ipynb) | Simulating Digital Twins with classical policy, diffusion based reorders, and hybrid mode. Kinetic energy represents how well the system is "flowing" in balancing inventory. |
+| [Stochastic Demand Simulation with decaying Geometric Brownian Motion](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/demand-simulation/demand.ipynb) | Simulate stochastic demand processes using a Geometric Brownian Motion (GBM) model with decay, produce mean path trajectories, simulate thousands of paths, and find the final distribution of your demand at end time T|
+| [Game Theoretic Supply Chain](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/game-theory/coopgame.ipynb) | Create a Cooperative Game in your Supply Chain with your suppliers and manufacturers to find partnerships, coalitions, and Nash equilibrium |
+| [Geopolitical Risk API & GDELT Monitor API](https://github.com/supplyseer-ai/supplyseer/blob/develop/tutorials/geopolitical-risk/geopolitical.ipynb) | Explore the supplyseer API for Geopolitical Risk assessments and do Sentiment Analysis with the GDELT Monitor API and HuggingFace | 
 
 
 ## <div align="center"> Contributing 🤝 </div>
