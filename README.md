@@ -61,7 +61,7 @@ Below are some models listed
 | [Time Upsampling](https://en.wikipedia.org/wiki/Upsampling) | Good when you have missing dates between samples |
 | [Taken's Embeddings](https://en.wikipedia.org/wiki/Takens%27s_theorem) | Extract the dynamics of a time series/signal |
 | Economic Order Quantity | This is the basic function of EOQ that returns a value while the Bayesian EOQ is a dynamic model |
-| [Manipulability Index](https://iaeme.com/MasterAdmin/Journal_uploads/IJMET/VOLUME_6_ISSUE_6/IJMET_06_06_002.pdf) | Another way of measuring volatility and stability of a time series |
+| [Manipulability Index](https://iaeme.com/MasterAdmin/Journal_uploads/IJMET/VOLUME_6_ISSUE_6/IJMET_06_06_002.pdf) | Another way of measuring volatility and stability of a time series. Also a measure of "responsiveness", e.g. promotional campaigns as interventions |
 | [Hurst Exponent R/S](https://en.wikipedia.org/wiki/Hurst_exponent) | Measure long-term memory or autocorrelation in a time series |
 | [Shannon Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) | Measures the unpredictability or randomnesss |
 | [Permutation Entropy](https://materias.df.uba.ar/dnla2019c1/files/2019/03/permutation_entropy.pdf) | Quantifies the diversity of patterns in the ordinal structure of a time series. It is the first output of `permutation_complexity()`|
