@@ -21,7 +21,6 @@ cd supplyseer
 
 # Install development dependencies
 pip install pytest pytest-cov black isort mypy pre-commit ortools
-pre-commit install
 
 # Install package in editable mode for development
 pip install -e .
