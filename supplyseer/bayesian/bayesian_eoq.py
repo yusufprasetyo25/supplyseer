@@ -1,14 +1,13 @@
-from dataclasses import dataclass, field
+from pydantic import BaseModel, Field, field_validator
 from typing import (
     Dict, List, Literal, Optional, Sequence, Union
 )
 import numpy as np
 from supplyseer.eoq import eoq
 
-@dataclass
-class BayesianDistribution:
+class ProbabilityDistribution(BaseModel):
     """
-    Data class to hold physical parameters.
+    Class to hold physical parameters.
 
     Attributes
     ----------
@@ -41,7 +40,7 @@ class BayesianDistribution:
     min: float
     max: float
     num_points: int
-    coefficient_of_variance: float = field(default=0.1)
+    coefficient_of_variance: float = Field(default=0.1)
 
     @staticmethod
     def normal_pdf(x: np.ndarray, mean: float, std: float) -> np.ndarray:
@@ -111,13 +110,12 @@ class BayesianDistribution:
         prior = self.normal_pdf(parameter_ranges, self.prior, standard_deviation)
         likelihood = self.normal_pdf(parameter_ranges, self.empirical, standard_deviation)
         unnormalized_posterior = prior * likelihood
-        marginal_likelihood = np.trapezoid(unnormalized_posterior, parameter_ranges)
+        marginal_likelihood = np.trapz(unnormalized_posterior, parameter_ranges)
         return unnormalized_posterior / marginal_likelihood
 
-@dataclass
-class SimulationParameters:
+class SimulationParameters(BaseModel):
     """
-    Data class to hold simulation parameters.
+    Class to hold simulation parameters.
     
     Parameters
     ----------
@@ -127,34 +125,40 @@ class SimulationParameters:
         Credible interval alpha. Defaults to 0.05
     num_monte_carlo_simulation : int, optional
         If uses parameter_grid = 'montecarlo', number of simulation. Defaults to 1
-    seed_monte_carlo_simulations : Union[None, int, Sequence[int], np.random.SeedSequence], optional
+    seed_monte_carlo_simulations : Union[None, int, Sequence[int]], optional
         If uses parameter_grid = 'montecarlo', seed value. Defaults to None
     """
-    parameter_grid: Literal['full', 'montecarlo'] = field(default='full')
-    credible_interval_alpha: float = field(default=0.05)
-    num_monte_carlo_simulations: int = field(default=1)
-    seed_monte_carlo_simulations: Union[None, int, Sequence[int], np.random.SeedSequence] = None
+    parameter_grid: Literal['full', 'montecarlo'] = Field(default='full')
+    credible_interval_alpha: float = Field(gt=0, lt=1, default=0.05)
+    num_monte_carlo_simulations: int = Field(default=1)
+    seed_monte_carlo_simulations: Union[None, int, Sequence[int]] = None
 
-@dataclass
-class BayesianEOQ:
+    @field_validator("seed_monte_carlo_simulations")
+    @classmethod
+    def check_positive(cls, v):
+        if any(n <= 0 for n in v):
+            raise ValueError("All seed sequence element must be greater than 0")
+        return v
+
+class BayesianEOQ(BaseModel):
     """
-    Data class to hold EOQ parameters and their ranges.
+    Class to hold EOQ parameters and their ranges.
     
     Attributes
     ----------
-    demand : BayesianDistribution
+    demand : ProbabilityDistribution
         Bayesian distribution information of demand parameter
-    order_cost : BayesianDistribution
+    order_cost : ProbabilityDistribution
         Bayesian distribution information of order_cost parameter
-    holding_cost : BayesianDistribution
+    holding_cost : ProbabilityDistribution
         Bayesian distribution information of holding_cost parameter
     simulation_parameters : SimulationParameters
         Simulation parameters in calculation of economic order quantity
 
     Methods
     -------
-    _calculate_credible_quantile():
-        Returns credible quantile for credible interval calculation
+    _calculate_credible_interval_domain():
+        Returns credible interval domain for credible interval calculation
     calculate_credible_interval():
         Returns credible interval for the posterior parameters combination
     calculate_distribution():
@@ -166,23 +170,20 @@ class BayesianEOQ:
     compute_full_analysis():
         Returns all calculation result
     """
-    demand: BayesianDistribution
-    order_cost: BayesianDistribution
-    holding_cost: BayesianDistribution
+    demand: ProbabilityDistribution
+    order_cost: ProbabilityDistribution
+    holding_cost: ProbabilityDistribution
     simulation_parameters: SimulationParameters
 
-    def _calculate_credible_quantile(self) -> List[float]:
+    def _calculate_credible_interval_domain(self) -> List[float]:
         """
-        Calculates credible quantile for credible interval
+        Calculates credible interval domain for credible interval
 
         Returns
         -------
         List[float]
             List consists of lower and upper bound of quantiles
         """
-        if (self.simulation_parameters.credible_interval_alpha < 0
-            or self.simulation_parameters.credible_interval_alpha >= 1):
-            raise ValueError("Alpha must be between 0 (inclusive) and 1 (exclusive)")
         return [self.simulation_parameters.credible_interval_alpha / 2,
                 1 - self.simulation_parameters.credible_interval_alpha / 2]
 
@@ -190,18 +191,18 @@ class BayesianEOQ:
         """
         Calculate credible interval for EOQ.
         
-        This uses credible interval from `_calculate_credible_quantile`
+        This uses credible interval from `_calculate_credible_interval_domain`
 
         Notes
         -----
-        This method uses self._calculate_credible_quantile()
+        This method uses self._calculate_credible_interval_domain()
 
         Returns
         -------
         List[float]
             Credible economic order quantity in parameters quantiles
         """
-        quantiles = self._calculate_credible_quantile()
+        quantiles = self._calculate_credible_interval_domain()
         def get_interval_values(posterior: np.ndarray, param_range: np.ndarray) -> List[float]:
             indices = [np.argmin(np.abs(posterior - np.quantile(posterior, q))) for q in quantiles]
             return [param_range[i] for i in indices]
@@ -264,8 +265,8 @@ class BayesianEOQ:
         
         Notes
         -----
-        Uses ranges from `BayesianDistribution.calculate_parameter_ranges`
-        and posterior from `BayesianDistribution.calculate_posterior`
+        Uses ranges from `ProbabilityDistribution.calculate_parameter_ranges`
+        and posterior from `ProbabilityDistribution.calculate_posterior`
 
         Returns
         -------
@@ -348,19 +349,22 @@ def bayesian_eoq_full(d: float, a: float, h: float,
                       parameter_space: Optional[str] = 'full',
                       n_simulations: Optional[int] = 1) -> Dict:
     """Wrapper function for backward compatibility."""
-    data_demand = BayesianDistribution(
+    data_demand = ProbabilityDistribution(
         empirical=d, prior=initial_d, min=min_d, max=max_d, num_points=n_param_values
     )
-    data_order_cost = BayesianDistribution(
+    data_order_cost = ProbabilityDistribution(
         empirical=a, prior=initial_a, min=min_a, max=max_a, num_points=n_param_values
     )
-    data_holding_cost = BayesianDistribution(
+    data_holding_cost = ProbabilityDistribution(
         empirical=h, prior=initial_h, min=min_h, max=max_h, num_points=n_param_values
     )
     data_simulation_parameters = SimulationParameters(
         parameter_grid=parameter_space,
         num_monte_carlo_simulations=n_simulations
     )
-    bayesian_eoq = BayesianEOQ(data_demand, data_order_cost,
-                               data_holding_cost, data_simulation_parameters)
+    bayesian_eoq = BayesianEOQ(
+        demand=data_demand,
+        order_cost=data_order_cost,
+        holding_cost=data_holding_cost,
+        simulation_parameters=data_simulation_parameters)
     return bayesian_eoq.compute_full_analysis()

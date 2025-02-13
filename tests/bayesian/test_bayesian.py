@@ -1,6 +1,6 @@
 import numpy as np
 from supplyseer.bayesian.bayesian_eoq import (
-    BayesianDistribution,
+    ProbabilityDistribution,
     bayesian_eoq_full
 )
 
@@ -29,12 +29,12 @@ def test_that_bayesian_eoq_and_computation_works():
 
     # Test normal PDF calculation
     d_range = np.linspace(d_min, d_max, n_param_values)
-    normal_probability_density = BayesianDistribution.normal_pdf(d_range, d, d*.1)
+    normal_probability_density = ProbabilityDistribution.normal_pdf(d_range, d, d*.1)
     assert len(normal_probability_density) == 100, "Length of normal_probability_density should be 100"
     assert not np.isnan(normal_probability_density).any(), "normal_probability_density should not contain NaN values"
 
     # Test bayesian distribution
-    bayesian_calc = BayesianDistribution(
+    bayesian_calc = ProbabilityDistribution(
         empirical=d,
         prior=initial_d,
         min=d_min,
