@@ -133,13 +133,6 @@ class SimulationParameters(BaseModel):
     num_monte_carlo_simulations: int = Field(default=1)
     seed_monte_carlo_simulations: Union[None, int, Sequence[int]] = None
 
-    @field_validator("seed_monte_carlo_simulations")
-    @classmethod
-    def check_positive(cls, v):
-        if any(n <= 0 for n in v):
-            raise ValueError("All seed sequence element must be greater than 0")
-        return v
-
 class BayesianEOQ(BaseModel):
     """
     Class to hold EOQ parameters and their ranges.
