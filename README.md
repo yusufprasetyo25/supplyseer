@@ -24,7 +24,7 @@ Supplyseer provides Permutation Complexity as a metric for time series analysis 
 You can install `supplyseer` directly from PyPI:
 
 ```bash
-pip install supplyseer==0.2.1
+pip install supplyseer==0.2.2
 ```
 
 For development installation, see our [Contributing Guide](CONTRIBUTING.md).
