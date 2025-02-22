@@ -1,5 +1,6 @@
 import numpy as np
 from supplyseer.bayesian.bayesian_eoq import (
+    ProbabilityDistributionConfig,
     ProbabilityDistribution,
     bayesian_eoq_full
 )
@@ -34,17 +35,18 @@ def test_that_bayesian_eoq_and_computation_works():
     assert not np.isnan(normal_probability_density).any(), "normal_probability_density should not contain NaN values"
 
     # Test bayesian distribution
-    bayesian_calc = ProbabilityDistribution(
+    d_configs = ProbabilityDistributionConfig(
         empirical=d,
         prior=initial_d,
         min=d_min,
         max=d_max,
         num_points=n_param_values,
     )
-
-    # Check posterior distributions
-    assert len(bayesian_calc.calculate_parameter_ranges()) == 100, "Length of posterior_d should be 100"
-    assert not np.isnan(bayesian_calc.calculate_parameter_ranges()).any(), "posterior_d should not contain NaN values"
+    bayesian_calc = ProbabilityDistribution(d_configs)
+    assert bayesian_calc is not None, "bayesian_calc should not be None"
+    assert bayesian_calc.calculate_posterior() is not None, "posterior should not be None"
+    assert bayesian_calc.calculate_posterior().shape == (100,), "posterior should have shape (100,)"
+    assert not np.isnan(bayesian_calc.calculate_posterior()).any(), "posterior should not contain NaN values"
 
     # Test full EOQ calculation
     eoq = bayesian_eoq_full(

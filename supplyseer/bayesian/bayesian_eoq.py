@@ -1,28 +1,41 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import (
-    Dict, List, Literal, Optional, Sequence, Union
+    Dict, List, Literal, Optional
 )
 import numpy as np
 from supplyseer.eoq import eoq
+from typing_extensions import Annotated
 
-class ProbabilityDistribution(BaseModel):
+class ProbabilityDistributionConfig(BaseModel):
+    """Configuration to hold physical parameters (empirical) and prior."""
+    empirical: float = Field(
+        ...,
+        description='The empirical value of parameter'
+    )
+    prior: float = Field(
+        ...,
+        description='The value of parameter from initial belief'
+    )
+    min: float = Field(
+        ...,
+        description='The minimum value of parameter from initial belief'
+    )
+    max: float = Field(
+        ...,
+        description='The maximum value of parameter from initial belief'
+    )
+    num_points: int = Field(
+        ...,
+        description='The grid resolution of parameter'
+    )
+    coefficient_of_variance: Annotated[float, Field(gt=0)] = Field(
+        0.1,
+        description='The std divided by mean (approximated by empirical mean)'
+    )
+
+class ProbabilityDistribution:
     """
-    Class to hold physical parameters.
-
-    Attributes
-    ----------
-    empirical : float
-        The empirical value of parameter
-    prior : float
-        The value of parameter from initial belief
-    min : float
-        The minimum value of parameter from initial belief
-    max : float
-        The maximum value of parameter from initial belief
-    num_points : float
-        The grid resolution of parameter
-    coefficient_of_variance : float, optional
-        The std divided by mean (approximated by empirical mean). Defaults to 0.1
+    Probability Distribution class of a parameter.
 
     Methods
     -------
@@ -35,12 +48,15 @@ class ProbabilityDistribution(BaseModel):
     calculate_posterior():
         Returns parameter posterior distribution from prior and likelihood information
     """
-    empirical: float
-    prior: float
-    min: float
-    max: float
-    num_points: int
-    coefficient_of_variance: float = Field(default=0.1)
+    
+    def __init__(self, config: ProbabilityDistributionConfig):
+        """
+        Initialize ProbabilityDistribution class.
+
+        Args:
+            config : ProbabilityDistributionConfig
+        """
+        self.config = config
 
     @staticmethod
     def normal_pdf(x: np.ndarray, mean: float, std: float) -> np.ndarray:
@@ -72,7 +88,7 @@ class ProbabilityDistribution(BaseModel):
         np.ndarray
             Linearly-spaced from min to max with length num_points
         """
-        return np.linspace(self.min, self.max, self.num_points)
+        return np.linspace(self.config.min, self.config.max, self.config.num_points)
     
     def calculate_standard_deviation(self):
         """
@@ -83,7 +99,7 @@ class ProbabilityDistribution(BaseModel):
         float
             The standard deviation of the parameter
         """
-        return self.empirical * self.coefficient_of_variance
+        return self.config.empirical * self.config.coefficient_of_variance
 
     def calculate_posterior(self):
         """
@@ -107,46 +123,56 @@ class ProbabilityDistribution(BaseModel):
         """
         parameter_ranges = self.calculate_parameter_ranges()
         standard_deviation = self.calculate_standard_deviation()
-        prior = self.normal_pdf(parameter_ranges, self.prior, standard_deviation)
-        likelihood = self.normal_pdf(parameter_ranges, self.empirical, standard_deviation)
+        prior = self.normal_pdf(parameter_ranges, self.config.prior, standard_deviation)
+        likelihood = self.normal_pdf(parameter_ranges, self.config.empirical, standard_deviation)
         unnormalized_posterior = prior * likelihood
         marginal_likelihood = np.trapz(unnormalized_posterior, parameter_ranges)
         return unnormalized_posterior / marginal_likelihood
 
-class SimulationParameters(BaseModel):
-    """
-    Class to hold simulation parameters.
-    
-    Parameters
-    ----------
-    parameter_grid : Literal['full', 'montecarlo']
-        Parameters used to calculate distribution: 'full' or 'montecarlo'
-    credible_inteval_alpha : float
-        Credible interval alpha. Defaults to 0.05
-    num_monte_carlo_simulation : int, optional
-        If uses parameter_grid = 'montecarlo', number of simulation. Defaults to 1
-    seed_monte_carlo_simulations : Union[None, int, Sequence[int]], optional
-        If uses parameter_grid = 'montecarlo', seed value. Defaults to None
-    """
-    parameter_grid: Literal['full', 'montecarlo'] = Field(default='full')
-    credible_interval_alpha: float = Field(gt=0, lt=1, default=0.05)
-    num_monte_carlo_simulations: int = Field(default=1)
-    seed_monte_carlo_simulations: Union[None, int, Sequence[int]] = None
+class SimulationConfig(BaseModel):
+    """Configuration to hold simulation parameters."""
+    parameter_grid: Literal['full', 'montecarlo'] = Field(
+        'full',
+        description='Parameters used to calculate distribution: full or montecarlo'
+    )
+    credible_interval_alpha: Annotated[float, Field(ge=0, le=1)] = Field(
+        0.05,
+        description='Credible interval alpha'
+    )
+    num_monte_carlo_simulations: int = Field(
+        1,
+        description='Number of simulation'
+    )
+    seed_monte_carlo_simulations: Optional[int] = Field(
+        None,
+        description='Monte Carlo random seed for reproducibility'
+    )
 
-class BayesianEOQ(BaseModel):
+class BayesianEOQConfig(BaseModel):
+    """Configuration to hold Bayesian EOQ simulation components."""
+    demand: ProbabilityDistribution = Field(
+        ...,
+        description='Bayesian distribution information of demand parameter'
+    )
+    order_cost: ProbabilityDistribution = Field(
+        ...,
+        description='Bayesian distribution information of order_cost parameter'
+    )
+    holding_cost: ProbabilityDistribution = Field(
+        ...,
+        description='Bayesian distribution information of holding_cost parameter'
+    )
+    simulation_config: SimulationConfig = Field(
+        ...,
+        description='Simulation parameters in calculation of economic order quantity'
+    )
+    model_config = {
+        "arbitrary_types_allowed": True  # Allow generated classes to be used as types
+    }
+
+class BayesianEOQ:
     """
-    Class to hold EOQ parameters and their ranges.
-    
-    Attributes
-    ----------
-    demand : ProbabilityDistribution
-        Bayesian distribution information of demand parameter
-    order_cost : ProbabilityDistribution
-        Bayesian distribution information of order_cost parameter
-    holding_cost : ProbabilityDistribution
-        Bayesian distribution information of holding_cost parameter
-    simulation_parameters : SimulationParameters
-        Simulation parameters in calculation of economic order quantity
+    Class to simulate Bayesian EOQ using posteriors and parameters.
 
     Methods
     -------
@@ -163,10 +189,16 @@ class BayesianEOQ(BaseModel):
     compute_full_analysis():
         Returns all calculation result
     """
-    demand: ProbabilityDistribution
-    order_cost: ProbabilityDistribution
-    holding_cost: ProbabilityDistribution
-    simulation_parameters: SimulationParameters
+    def __init__(self, config: BayesianEOQConfig):
+        """
+        Initialize BayesianEOQ class.
+
+        Args:
+            config : BayesianEOQConfig
+        """
+        self.config = config
+        if config.simulation_config.seed_monte_carlo_simulations is not None:
+            np.random.seed(config.seed_monte_carlo_simulations)
 
     def _calculate_credible_interval_domain(self) -> List[float]:
         """
@@ -177,8 +209,8 @@ class BayesianEOQ(BaseModel):
         List[float]
             List consists of lower and upper bound of quantiles
         """
-        return [self.simulation_parameters.credible_interval_alpha / 2,
-                1 - self.simulation_parameters.credible_interval_alpha / 2]
+        return [self.config.simulation_config.credible_interval_alpha / 2,
+                1 - self.config.simulation_config.credible_interval_alpha / 2]
 
     def calculate_credible_interval(self) -> List[float]:
         """
@@ -201,16 +233,16 @@ class BayesianEOQ(BaseModel):
             return [param_range[i] for i in indices]
 
         interval_d = get_interval_values(
-            self.demand.calculate_posterior(),
-            self.demand.calculate_parameter_ranges()
+            self.config.demand.calculate_posterior(),
+            self.config.demand.calculate_parameter_ranges()
         )
         interval_a = get_interval_values(
-            self.order_cost.calculate_posterior(),
-            self.order_cost.calculate_parameter_ranges()
+            self.config.order_cost.calculate_posterior(),
+            self.config.order_cost.calculate_parameter_ranges()
         )
         interval_h = get_interval_values(
-            self.holding_cost.calculate_posterior(),
-            self.holding_cost.calculate_parameter_ranges()
+            self.config.holding_cost.calculate_posterior(),
+            self.config.holding_cost.calculate_parameter_ranges()
         )
 
         return [eoq(d, a, h)
@@ -235,20 +267,20 @@ class BayesianEOQ(BaseModel):
         List[float]
             List of economic order quantity in pre-defined grids
         """
-        if self.simulation_parameters.parameter_grid == 'full':
-            d_range = self.demand.calculate_parameter_ranges()
-            a_range = self.order_cost.calculate_parameter_ranges()
-            h_range = self.holding_cost.calculate_parameter_ranges()
+        if self.config.simulation_config.parameter_grid == 'full':
+            d_range = self.config.demand.calculate_parameter_ranges()
+            a_range = self.config.order_cost.calculate_parameter_ranges()
+            h_range = self.config.holding_cost.calculate_parameter_ranges()
             return [eoq(d, a, h)
                     for d in d_range
                     for a in a_range
                     for h in h_range]
-        if self.simulation_parameters.parameter_grid == 'montecarlo':
+        if self.config.simulation_config.parameter_grid == 'montecarlo':
             eoq_montecarlo = eoq(d_range, a_range, h_range)
             rng = np.random.default_rng(
-                self.simulation_parameters.seed_monte_carlo_simulations)
+                self.simulation_config.seed_monte_carlo_simulations)
             return rng.choice(eoq_montecarlo,
-                              size=self.simulation_parameters.num_monte_carlo_simulations,
+                              size=self.simulation_config.num_monte_carlo_simulations,
                               replace=True).tolist()
         return []
 
@@ -266,12 +298,12 @@ class BayesianEOQ(BaseModel):
         Dict[str, float]
             Dictionary of most probable eoq with respecting d, a, and h
         """
-        d_range = self.demand.calculate_parameter_ranges()
-        a_range = self.order_cost.calculate_parameter_ranges()
-        h_range = self.holding_cost.calculate_parameter_ranges()
-        posterior_d = self.demand.calculate_posterior()
-        posterior_a = self.demand.calculate_posterior()
-        posterior_h = self.demand.calculate_posterior()
+        d_range = self.config.demand.calculate_parameter_ranges()
+        a_range = self.config.order_cost.calculate_parameter_ranges()
+        h_range = self.config.holding_cost.calculate_parameter_ranges()
+        posterior_d = self.config.demand.calculate_posterior()
+        posterior_a = self.config.demand.calculate_posterior()
+        posterior_h = self.config.demand.calculate_posterior()
         return {
             'eoq': eoq(
                 d_range[np.argmax(posterior_d)],
@@ -294,16 +326,16 @@ class BayesianEOQ(BaseModel):
         """
         return {
             'min': {
-                'eoq': eoq(self.demand.min, self.order_cost.min, self.holding_cost.max),
-                'd': self.demand.min,
-                'a': self.order_cost.min,
-                'h': self.holding_cost.max  # max since holding_cost in denominator
+                'eoq': eoq(self.config.demand.config.min, self.config.order_cost.config.min, self.config.holding_cost.config.max),
+                'd': self.config.demand.config.min,
+                'a': self.config.order_cost.config.min,
+                'h': self.config.holding_cost.config.max  # max since holding_cost in denominator
             },
             'max': {
-                'eoq': eoq(self.demand.max, self.order_cost.max, self.holding_cost.min),
-                'd': self.demand.max,
-                'a': self.order_cost.max,
-                'h': self.holding_cost.min  # min since holding_cost in denominator
+                'eoq': eoq(self.config.demand.config.max, self.config.order_cost.config.max, self.config.holding_cost.config.min),
+                'd': self.config.demand.config.max,
+                'a': self.config.order_cost.config.max,
+                'h': self.config.holding_cost.config.min  # min since holding_cost in denominator
             }
         }
 
@@ -332,7 +364,7 @@ class BayesianEOQ(BaseModel):
             'eoq_credible_interval': self.calculate_credible_interval()
         }
 
-# Example usage:
+# Example usage (only for backward compatibility):
 def bayesian_eoq_full(d: float, a: float, h: float,
                       min_d: float, max_d: float,
                       min_a: float, max_a: float,
@@ -342,22 +374,27 @@ def bayesian_eoq_full(d: float, a: float, h: float,
                       parameter_space: Optional[str] = 'full',
                       n_simulations: Optional[int] = 1) -> Dict:
     """Wrapper function for backward compatibility."""
-    data_demand = ProbabilityDistribution(
+    data_demand_config = ProbabilityDistributionConfig(
         empirical=d, prior=initial_d, min=min_d, max=max_d, num_points=n_param_values
     )
-    data_order_cost = ProbabilityDistribution(
+    data_demand = ProbabilityDistribution(data_demand_config)
+    data_order_cost_config = ProbabilityDistributionConfig(
         empirical=a, prior=initial_a, min=min_a, max=max_a, num_points=n_param_values
     )
-    data_holding_cost = ProbabilityDistribution(
+    data_order_cost = ProbabilityDistribution(data_order_cost_config)
+    data_holding_cost_config = ProbabilityDistributionConfig(
         empirical=h, prior=initial_h, min=min_h, max=max_h, num_points=n_param_values
     )
-    data_simulation_parameters = SimulationParameters(
+    data_holding_cost = ProbabilityDistribution(data_holding_cost_config)
+    data_simulation_config = SimulationConfig(
         parameter_grid=parameter_space,
         num_monte_carlo_simulations=n_simulations
     )
-    bayesian_eoq = BayesianEOQ(
+    bayesian_eoq_config = BayesianEOQConfig(
         demand=data_demand,
         order_cost=data_order_cost,
         holding_cost=data_holding_cost,
-        simulation_parameters=data_simulation_parameters)
+        simulation_config=data_simulation_config
+    )
+    bayesian_eoq = BayesianEOQ(bayesian_eoq_config)
     return bayesian_eoq.compute_full_analysis()
