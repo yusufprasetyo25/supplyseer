@@ -198,7 +198,7 @@ class BayesianEOQ:
         """
         self.config = config
         if config.simulation_config.seed_monte_carlo_simulations is not None:
-            np.random.seed(config.seed_monte_carlo_simulations)
+            np.random.seed(config.simulation_config.seed_monte_carlo_simulations)
 
     def _calculate_credible_interval_domain(self) -> List[float]:
         """
@@ -276,11 +276,14 @@ class BayesianEOQ:
                     for a in a_range
                     for h in h_range]
         if self.config.simulation_config.parameter_grid == 'montecarlo':
+            d_range = self.config.demand.calculate_parameter_ranges()
+            a_range = self.config.order_cost.calculate_parameter_ranges()
+            h_range = self.config.holding_cost.calculate_parameter_ranges()
             eoq_montecarlo = eoq(d_range, a_range, h_range)
             rng = np.random.default_rng(
-                self.simulation_config.seed_monte_carlo_simulations)
+                self.config.simulation_config.seed_monte_carlo_simulations)
             return rng.choice(eoq_montecarlo,
-                              size=self.simulation_config.num_monte_carlo_simulations,
+                              size=self.config.simulation_config.num_monte_carlo_simulations,
                               replace=True).tolist()
         return []
 

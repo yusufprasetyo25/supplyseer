@@ -24,7 +24,8 @@ def test_that_bayesian_eoq_and_computation_works():
     initial_a = 10
     initial_h = 1
     n_param_values = 100
-    parameter_space = "full"
+    parameter_space_full = "full"
+    parameter_space_mc = "montecarlo"
     n_simulations = 1000
 
 
@@ -63,7 +64,7 @@ def test_that_bayesian_eoq_and_computation_works():
         initial_a=initial_a,
         initial_h=initial_h,
         n_param_values=n_param_values,
-        parameter_space=parameter_space,
+        parameter_space=parameter_space_full,
         n_simulations=n_simulations
     )
     
@@ -105,3 +106,62 @@ def test_that_bayesian_eoq_and_computation_works():
         "All credible interval values should be positive"
     assert eoq['bayesian_eoq_most_probable']['eoq'] > 0, \
         "Most probable EOQ should be positive"
+
+    # Test montecarlo EOQ calculation
+    eoq = bayesian_eoq_full(
+        d=d,
+        a=a,
+        h=h,
+        min_d=d_min,
+        max_d=d_max,
+        min_a=a_min,
+        max_a=a_max,
+        min_h=h_min,
+        max_h=h_max,
+        initial_d=initial_d,
+        initial_a=initial_a,
+        initial_h=initial_h,
+        n_param_values=n_param_values,
+        parameter_space=parameter_space_mc,
+        n_simulations=n_simulations
+    )
+    
+    # Check EOQ result structure
+    assert eoq is not None, "eoq should not be None"
+    assert isinstance(eoq, dict), "eoq should be a dictionary"
+    
+    # Check required keys
+    required_keys = [
+        'bayesian_eoq_most_probable',
+        'bayesian_eoq_min_least_probable',
+        'bayesian_eoq_max_least_probable',
+        'eoq_distribution',
+        'eoq_credible_interval'
+    ]
+    for key in required_keys:
+        assert key in eoq, f"eoq should contain '{key}'"
+    
+    # Check types of result components
+    assert isinstance(eoq['bayesian_eoq_most_probable'], dict), \
+        "eoq['bayesian_eoq_most_probable'] should be a dictionary"
+    assert isinstance(eoq['bayesian_eoq_min_least_probable'], dict), \
+        "eoq['bayesian_eoq_min_least_probable'] should be a dictionary"
+    assert isinstance(eoq['bayesian_eoq_max_least_probable'], dict), \
+        "eoq['bayesian_eoq_max_least_probable'] should be a dictionary"
+    assert isinstance(eoq['eoq_distribution'], list), \
+        "eoq['eoq_distribution'] should be a list"
+    assert isinstance(eoq['eoq_credible_interval'], list), \
+        "eoq['eoq_credible_interval'] should be a list"
+    
+    # Check distribution is not empty
+    assert len(eoq['eoq_distribution']) > 0, \
+        "eoq['eoq_distribution'] should not be empty"
+    
+    # Check values are reasonable
+    assert all(v > 0 for v in eoq['eoq_distribution']), \
+        "All EOQ values should be positive"
+    assert all(v > 0 for v in eoq['eoq_credible_interval']), \
+        "All credible interval values should be positive"
+    assert eoq['bayesian_eoq_most_probable']['eoq'] > 0, \
+        "Most probable EOQ should be positive"
+
