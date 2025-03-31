@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import (
     Dict, List, Literal, Optional
 )
+import warnings
+import matplotlib.pyplot as plt
 import numpy as np
 from supplyseer.eoq import eoq
 from typing_extensions import Annotated
@@ -32,6 +34,26 @@ class ProbabilityDistributionConfig(BaseModel):
         0.1,
         description='The std divided by mean (approximated by empirical mean)'
     )
+
+    @model_validator(mode='after')
+    def validate_min_max(self) -> 'ProbabilityDistributionConfig':
+        if self.min > self.max:
+            raise ValueError("max must be after min")
+        return self
+    
+    @model_validator(mode='after')
+    def validate_prior(self) -> 'ProbabilityDistributionConfig':
+        if not (self.min < self.prior < self.max):
+            raise ValueError("prior must be between min and max")
+        return self
+    
+    @model_validator(mode='after')
+    def validate_empirical(self) -> 'ProbabilityDistributionConfig':
+        if not (self.min < self.empirical < self.max):
+            msg = "empirical value not within min and max range, distribution may be truncated"
+            warnings.warn(msg, Warning)
+            return self
+        return self
 
 class ProbabilityDistribution:
     """
@@ -128,6 +150,31 @@ class ProbabilityDistribution:
         unnormalized_posterior = prior * likelihood
         marginal_likelihood = np.trapz(unnormalized_posterior, parameter_ranges)
         return unnormalized_posterior / marginal_likelihood
+    
+    def plot_posterior(self, style: str = "dark_background"):
+        """
+        Plot posterior distribution of parameter.
+
+        Notes
+        -----
+        This method uses
+        self.calculate_parameter_ranges()
+        self.calculate_posterior()
+
+        Returns
+        -------
+        None
+        """
+        plt.style.use(style)
+        parameter_ranges = self.calculate_parameter_ranges()
+        posterior = self.calculate_posterior()
+        plt.figure(figsize=(15, 3))
+        plt.stem(parameter_ranges, posterior, 'r')
+        plt.xlabel('Physical Units')
+        plt.ylabel('Likelihood')
+        plt.title('Posterior Distribution')
+        plt.show()
+        return None
 
 class SimulationConfig(BaseModel):
     """Configuration to hold simulation parameters."""
@@ -305,8 +352,8 @@ class BayesianEOQ:
         a_range = self.config.order_cost.calculate_parameter_ranges()
         h_range = self.config.holding_cost.calculate_parameter_ranges()
         posterior_d = self.config.demand.calculate_posterior()
-        posterior_a = self.config.demand.calculate_posterior()
-        posterior_h = self.config.demand.calculate_posterior()
+        posterior_a = self.config.order_cost.calculate_posterior()
+        posterior_h = self.config.holding_cost.calculate_posterior()
         return {
             'eoq': eoq(
                 d_range[np.argmax(posterior_d)],
